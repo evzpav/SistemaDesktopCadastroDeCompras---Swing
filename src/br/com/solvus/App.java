@@ -1,4 +1,6 @@
 package br.com.solvus;
+import java.sql.SQLException;
+
 import javax.swing.SwingUtilities;
 
 import br.com.solvus.viewSwing.util.MainFrame;
@@ -9,7 +11,12 @@ public class App {
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() { 
-				new MainFrame();
+				try {
+					new MainFrame();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
 			}
 		});

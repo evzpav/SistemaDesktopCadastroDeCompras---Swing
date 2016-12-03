@@ -25,7 +25,7 @@ public class Produto {
 
 	@Override
 	public String toString() {
-		return "Produto [nome=" + nome + ", id=" + id + "]";
+		return nome;
 	}
 
 	public void setNome(String nome) {

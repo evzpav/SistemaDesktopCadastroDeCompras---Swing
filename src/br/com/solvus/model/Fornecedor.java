@@ -18,7 +18,6 @@ public class Fornecedor {
 	
 	}
 	
-	
 	public String getNome() {
 		return nome;
 	}
@@ -52,6 +51,11 @@ public class Fornecedor {
 
 	public void setDataContrato(Date dataContrato) {
 		this.dataContrato = dataContrato;
+	}
+
+	@Override
+	public String toString() {
+		return nome;
 	}
 	
 	

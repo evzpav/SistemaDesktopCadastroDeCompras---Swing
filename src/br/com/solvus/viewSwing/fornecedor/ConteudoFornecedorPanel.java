@@ -28,14 +28,14 @@ public class ConteudoFornecedorPanel extends JPanel {
 		
 		
 		this.setLayout(cardlayout);
-		this.add(tabelaFornecedor, "5");
-		this.add(cadastroFornecedorPanel, "6");
-		cardlayout.show(this, "5");
+		this.add(tabelaFornecedor, "1");
+		this.add(cadastroFornecedorPanel, "2");
+		cardlayout.show(this, "1");
 
 	}
 
-	public void mostrarCadastroFornPanel() {
-		cardlayout.show(this, "6");
+	public void showCadastroFornPanel() {
+		cardlayout.show(this, "2");
 	
 		cadastroFornecedorPanel.removeCheckboxPanel();
 		cadastroFornecedorPanel.generateCheckbox();
@@ -43,20 +43,20 @@ public class ConteudoFornecedorPanel extends JPanel {
 
 	}
 
-	public void mostrarTabelaFornPanel() {
-		cardlayout.show(this, "5");
+	public void showTabelaFornPanel() {
+		cardlayout.show(this, "1");
 		tabelaFornecedor.atualizar();
 		cadastroFornecedorPanel.removeCheckboxPanel();
 	}
 
 	public void setEditingForn() {
 		cadastroFornecedorPanel.isEditing();
-		mostrarCadastroFornPanel();
+		showCadastroFornPanel();
 	}
 
 	public void isNew() {
 		cadastroFornecedorPanel.isNew();
-		mostrarCadastroFornPanel();
+		showCadastroFornPanel();
 	}
 
 	public void fornecedorAEditar(Fornecedor fornecedor) {

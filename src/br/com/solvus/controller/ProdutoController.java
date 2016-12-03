@@ -1,26 +1,13 @@
 package br.com.solvus.controller;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JCheckBox;
-import javax.swing.table.DefaultTableModel;
-
-import org.w3c.dom.ls.LSInput;
 
 import br.com.solvus.model.ConnectionPool;
 import br.com.solvus.model.Produto;
 import br.com.solvus.model.ProdutoDao;
-import br.com.solvus.viewSwing.util.ButtonEditor;
-import br.com.solvus.viewSwing.util.ButtonRenderer;
-import br.com.solvus.viewSwing.util.MainFrame;
 import br.com.solvus.viewSwing.util.ValidationError;
 
 public class ProdutoController {
@@ -32,6 +19,8 @@ public class ProdutoController {
 		this.con = ConnectionPool.CONNECTIONPOOL.getConnection();
 		dao = new ProdutoDao(con);
 	}
+	
+	
 
 	public void save(Produto produto) throws SQLException {
 		dao.save(produto);

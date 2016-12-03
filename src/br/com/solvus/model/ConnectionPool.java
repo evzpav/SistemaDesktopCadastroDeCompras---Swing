@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.hsqldb.jdbc.JDBCPool;
 import org.postgresql.jdbc3.Jdbc3PoolingDataSource;
 
 public class ConnectionPool {

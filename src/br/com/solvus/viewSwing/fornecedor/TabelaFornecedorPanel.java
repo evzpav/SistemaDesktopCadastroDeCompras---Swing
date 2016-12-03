@@ -42,8 +42,6 @@ public class TabelaFornecedorPanel extends JPanel {
 
 		dm = new DefaultTableModel();
 
-		
-		
 		table = new JTable(dm);
 
 		table.setPreferredScrollableViewportSize(new Dimension(700, 500));
@@ -64,13 +62,10 @@ public class TabelaFornecedorPanel extends JPanel {
 
 		botaoCadastroFornecedor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				conteudoFornecedorPanel.mostrarCadastroFornPanel();
+				conteudoFornecedorPanel.showCadastroFornPanel();
 			}
 		});
-
 	}
-
-
 
 	public void atualizar() {
 		List<Fornecedor> listaFornecedores = null;
@@ -123,13 +118,9 @@ public class TabelaFornecedorPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
 				excluir(table);
-
 			}
-
 		}));
-
 	}
 
 

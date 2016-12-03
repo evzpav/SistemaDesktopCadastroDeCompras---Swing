@@ -98,7 +98,7 @@ public class CadastroFornecedorPanel extends JPanel {
 						}
 
 						mostrarMensagemSalvoComSucesso();
-						conteudoFornecedorPanel.mostrarTabelaFornPanel();
+						conteudoFornecedorPanel.showTabelaFornPanel();
 
 						clearFields();
 
@@ -120,7 +120,7 @@ public class CadastroFornecedorPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				nameField.setText("");
 				dateField.setText("");
-				conteudoFornecedorPanel.mostrarTabelaFornPanel();
+				conteudoFornecedorPanel.showTabelaFornPanel();
 
 			}
 		});

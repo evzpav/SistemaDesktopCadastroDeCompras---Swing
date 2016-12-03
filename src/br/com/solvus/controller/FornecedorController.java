@@ -1,27 +1,17 @@
 package br.com.solvus.controller;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.swing.JCheckBox;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
 
 import br.com.solvus.model.ConnectionPool;
 import br.com.solvus.model.Fornecedor;
 import br.com.solvus.model.FornecedorDao;
 import br.com.solvus.model.Produto;
-import br.com.solvus.model.ProdutoDao;
-import br.com.solvus.viewSwing.fornecedor.ConteudoFornecedorPanel;
-import br.com.solvus.viewSwing.util.MainFrame;
 import br.com.solvus.viewSwing.util.ValidationError;
 
 public class FornecedorController {

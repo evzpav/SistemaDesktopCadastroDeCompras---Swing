@@ -30,18 +30,18 @@ public class ConteudoProdutoPanel extends JPanel {
 		}
 
 		this.setLayout(cardlayout);
-		this.add(tabelaProduto, "3");
-		this.add(cadastroProdutoPanel, "4");
-		cardlayout.show(this, "3");
+		this.add(tabelaProduto, "1");
+		this.add(cadastroProdutoPanel, "2");
+		cardlayout.show(this, "1");
 
 	}
 
-	public void mostrarCadastroProdPanel() {
-		cardlayout.show(this, "4");
+	public void showCadastroProdPanel() {
+		cardlayout.show(this, "2");
 	}
 
-	public void mostrarTabelaProdPanel() {
-		cardlayout.show(this, "3");
+	public void showTabelaProdPanel() {
+		cardlayout.show(this, "1");
 		try {
 			tabelaProduto.refreshTable();
 		} catch (SQLException e) {
@@ -53,12 +53,12 @@ public class ConteudoProdutoPanel extends JPanel {
 	}
 	public void setEditing() {
 		cadastroProdutoPanel.isEditing();
-		mostrarCadastroProdPanel();			
+		showCadastroProdPanel();			
 	}
 
 	public void isNew() {
 		cadastroProdutoPanel.isNew();
-		mostrarCadastroProdPanel();
+		showCadastroProdPanel();
 	}
 	public void produtoAEditar(Produto produto){
 		cadastroProdutoPanel.setProdutoAEditar(produto);

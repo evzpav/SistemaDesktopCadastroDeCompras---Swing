@@ -99,7 +99,7 @@ public class CadastroProdutoPanel extends JPanel {
 
 						}
 						mostrarMensagemSalvoComSucesso();
-						conteudoProdutoPanel.mostrarTabelaProdPanel();
+						conteudoProdutoPanel.showTabelaProdPanel();
 						limpaCampo();
 					}
 				} catch (Exception exc) {
@@ -113,7 +113,7 @@ public class CadastroProdutoPanel extends JPanel {
 		botaoCancelar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				limpaCampo();
-				conteudoProdutoPanel.mostrarTabelaProdPanel();
+				conteudoProdutoPanel.showTabelaProdPanel();
 			}
 		});
 
