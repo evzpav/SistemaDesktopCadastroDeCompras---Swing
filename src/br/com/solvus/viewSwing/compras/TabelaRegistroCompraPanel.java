@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JCheckBox;
@@ -27,18 +28,19 @@ public class TabelaRegistroCompraPanel extends JPanel {
 
 	public TabelaRegistroCompraPanel() {
 		super(new GridLayout(1, 0));
-		
+
 		dm = new DefaultTableModel();
-		
+
 		tableItemDeCompra = new JTable(dm);
 		itemDeCompraController = new ItemDeCompraController();
 		tableItemDeCompra.setPreferredScrollableViewportSize(new Dimension(700, 500));
 		tableItemDeCompra.setFillsViewportHeight(true);
+
 		atualizar();
 		JScrollPane scrollPane = new JScrollPane(tableItemDeCompra);
 		add(scrollPane);
 	}
-	
+
 	public void atualizar() {
 		List<ItemDeCompra> listaItemDeCompra = null;
 		try {
@@ -51,7 +53,7 @@ public class TabelaRegistroCompraPanel extends JPanel {
 	}
 
 	private void settarDataVector(DefaultTableModel dm, List<ItemDeCompra> listaItemDeCompra) {
-		Object[][] data = new Object[listaItemDeCompra.size()][6];
+		Object[][] data = new Object[listaItemDeCompra.size()][5];
 
 		for (int i = 0; i < listaItemDeCompra.size(); i++) {
 
@@ -59,24 +61,12 @@ public class TabelaRegistroCompraPanel extends JPanel {
 			data[i][1] = listaItemDeCompra.get(i).getProduto().getNome();
 			data[i][2] = listaItemDeCompra.get(i).getQuantidade();
 			data[i][3] = listaItemDeCompra.get(i).getValorUnitario();
-			data[i][4] = "Editar";
-			data[i][5] = "Excluir";
+			data[i][4] = "Excluir";
 		}
 
-		Object[] types = new Object[] { "ID", "Produto", "Quantidade", "Valor Unitario", "Editar", "Excluir" };
+		Object[] types = new Object[] { "ID", "Produto", "Quantidade", "Valor Unitario", "Excluir" };
 
 		dm.setDataVector(data, types);
-
-		tableItemDeCompra.getColumn("Editar").setCellRenderer(new ButtonRenderer());
-		tableItemDeCompra.getColumn("Editar").setCellEditor(new ButtonEditor(new JCheckBox(), new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				// editar(conteudoCompraPanel, tableItemDeCompra);
-
-			}
-		}));
 
 		tableItemDeCompra.getColumn("Excluir").setCellRenderer(new ButtonRenderer());
 		tableItemDeCompra.getColumn("Excluir").setCellEditor(new ButtonEditor(new JCheckBox(), new ActionListener() {
@@ -117,12 +107,50 @@ public class TabelaRegistroCompraPanel extends JPanel {
 
 		try {
 			itemDeCompraController.deleteById(idItemDeCompra);
-			// atualizar();
+			atualizar();
 
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+	}
+
+	public List<Integer> getListaIdItemDeCompraDaTabela() {
+		List<Integer> listaItemDeCompraDaTabela = new ArrayList<Integer>();
+
+		for (int i = 0; i < tableItemDeCompra.getRowCount(); i++) {
+			Integer idItemDeCompra = (Integer) tableItemDeCompra.getValueAt(i, 0);
+
+			listaItemDeCompraDaTabela.add(idItemDeCompra);
+		}
+		System.out.println(listaItemDeCompraDaTabela);
+		return listaItemDeCompraDaTabela;
+
+	}
+
+	public String somaValorTotal() {
+		Double valorTotal = 0.00;
+		for (int i = 0; i < tableItemDeCompra.getRowCount(); i++) {
+			Double valorUnitario = (Double) tableItemDeCompra.getValueAt(i, 3);
+			Integer quantidade = (Integer) tableItemDeCompra.getValueAt(i, 2);
+
+			valorTotal = valorTotal + valorUnitario * quantidade;
+		}
+		String valorTotalString = String.valueOf(valorTotal);
+		return valorTotalString;
+	}
+
+	public void limparTabelaItemDeCompra() {
+		for (int i = 0; i < tableItemDeCompra.getRowCount(); i++) {
+			int idItemDeCompra = (int) tableItemDeCompra.getValueAt(i, 0);
+			try {
+				itemDeCompraController.deleteById(idItemDeCompra);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		atualizar();
 	}
 
 }

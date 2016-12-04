@@ -3,8 +3,8 @@ package br.com.solvus.model;
 public class ItemDeCompra {
 
 	private int idItemDeCompra;
-	private int quantidade;
-	private double valorUnitario;
+	private Integer quantidade;
+	private Double valorUnitario;
 	private Produto produto;
 
 	public ItemDeCompra(Produto produto, int quantidade, double valorUnitario) {
@@ -22,7 +22,7 @@ public class ItemDeCompra {
 		this.idItemDeCompra = idItemDeCompra;
 	}
 
-	public int getQuantidade() {
+	public Integer getQuantidade() {
 		return quantidade;
 	}
 
@@ -30,7 +30,7 @@ public class ItemDeCompra {
 		this.quantidade = quantidade;
 	}
 
-	public double getValorUnitario() {
+	public Double getValorUnitario() {
 		return valorUnitario;
 	}
 

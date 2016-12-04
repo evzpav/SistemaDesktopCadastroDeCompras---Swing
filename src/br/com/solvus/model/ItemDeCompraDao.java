@@ -9,11 +9,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.solvus.controller.ItemDeCompraController;
+
 public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 
 	private final Connection connection;
 	private ProdutoDao produtoDao;
-	
+
 	public ItemDeCompraDao(Connection connection) {
 		this.connection = connection;
 		produtoDao = new ProdutoDao(connection);
@@ -33,25 +35,25 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 				int idItemDeCompra = keys.getInt("id_itemdecompra");
 				itemdecompra.setIdItemDeCompra(idItemDeCompra);
 			}
-			
-			for (ItemDeCompra itemdecompra1 : compra.getListaDeItemDeCompra()) {
-				this.saveRelationship(itemdecompra1, compra);
-			}
+
+//			for (Integer itemdecompra1 : compra.getListaDeItemDeCompra()) {
+//				this.saveRelationship(itemdecompra1, compra);
+//			}
 
 		}
 
 	}
-	
-	public void saveRelationship(ItemDeCompra itemdecompra, Compra compra) throws SQLException {
+
+	public void saveRelationship(Integer idItemDeCompra, Compra compra) throws SQLException {
 		try (PreparedStatement stmt = connection.prepareStatement(
-				"update itemdecompra set id_compra = (?) "
-				+ "where id_itemdecompra = (?)", Statement.RETURN_GENERATED_KEYS)) {
-			stmt.setInt(1, compra.getId() );
-			stmt.setInt(2, itemdecompra.getIdItemDeCompra());
+				"update itemdecompra set id_compra = (?) " + "where id_itemdecompra = (?)",
+				Statement.RETURN_GENERATED_KEYS)) {
+			stmt.setInt(1, compra.getId());
+			stmt.setInt(2, idItemDeCompra);
 			stmt.execute();
 		}
 	}
-	
+
 	@Override
 	public ItemDeCompra findById(Integer idItemDeCompra) throws SQLException {
 		String sql = "select * from itemdecompra where id_itemdecompra = (?)";
@@ -100,8 +102,6 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 		}
 	}
 
-	
-
 	@Override
 	public void deleteById(Integer idItemDeCompra) throws SQLException {
 		String sql = "delete from itemdecompra where id_itemdecompra = (?)";
@@ -111,15 +111,16 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 		}
 
 	}
-	
-//	public void deleteRelationship(Integer idItemDeCompra) throws SQLException {
-//		try (PreparedStatement stmt = connection.prepareStatement("delete from itemdecompra where id_compra = (?)",
-//				Statement.RETURN_GENERATED_KEYS)) {
-//			stmt.setInt(1, idCompra);
-//			stmt.execute();
-//
-//	}
-	
+
+	// public void deleteRelationship(Integer idItemDeCompra) throws
+	// SQLException {
+	// try (PreparedStatement stmt = connection.prepareStatement("delete from
+	// itemdecompra where id_compra = (?)",
+	// Statement.RETURN_GENERATED_KEYS)) {
+	// stmt.setInt(1, idCompra);
+	// stmt.execute();
+	//
+	// }
 
 	@Override
 	public List<ItemDeCompra> list() throws SQLException {
@@ -127,20 +128,22 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 		String sql = "select * from itemdecompra";
 		try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 			stmt.execute();
-						
+
 			List<ItemDeCompra> listaItemDeCompra = new ArrayList<ItemDeCompra>();
 			ResultSet resultSet = stmt.getResultSet();
-		
+
 			while (resultSet.next()) {
 				Produto produto = null;
 				ItemDeCompra itemdecompra = null;
 				int idProduto = resultSet.getInt("id_produto");
+				int idItemDeCompra = resultSet.getInt("id_itemdecompra");
 				produto = produtoDao.findById(idProduto);
 				Integer quantidade = resultSet.getInt("quantidade");
 				Double valorUnitario = resultSet.getDouble("valor_unitario");
 				itemdecompra = new ItemDeCompra(produto, quantidade, valorUnitario);
+				itemdecompra.setIdItemDeCompra(idItemDeCompra);
 				listaItemDeCompra.add(itemdecompra);
-
+				
 			}
 			return listaItemDeCompra;
 		}
@@ -162,9 +165,24 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 	}
 
 	@Override
-	public void save(ItemDeCompra object) throws SQLException {
-		// TODO Auto-generated method stub
-		
-	}
+	public void save(ItemDeCompra itemdecompra) throws SQLException {
+		try (PreparedStatement stmt = connection.prepareStatement(
+				"insert into itemdecompra(id_produto, quantidade, valor_unitario) values (?,?,?)",
+				Statement.RETURN_GENERATED_KEYS)) {
+			int idProduto = produtoDao.findIdProduto(itemdecompra.getProduto());
 
+			stmt.setInt(1, idProduto);
+			stmt.setInt(2, itemdecompra.getQuantidade());
+			stmt.setDouble(3, itemdecompra.getValorUnitario());
+			stmt.execute();
+
+			// try (ResultSet keys = stmt.getGeneratedKeys()) {
+			// keys.next();
+			// int idItemDeCompra = keys.getInt("id_itemdecompra");
+			// itemdecompra.setIdItemDeCompra(idItemDeCompra);
+			// }
+
+		}
+
+	}
 }

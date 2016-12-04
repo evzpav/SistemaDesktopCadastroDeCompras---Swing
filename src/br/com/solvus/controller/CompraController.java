@@ -31,14 +31,14 @@ public class CompraController {
 		
 	}
 
-	public void salvarCompra(Fornecedor fornecedor, String inputDate, ItemDeCompra itemdecompra) throws SQLException {
+	public void saveCompra(Fornecedor fornecedor, String inputDate, List <Integer> listaDeItemDeCompraAdicionadosNaTabela) throws SQLException {
 		ValidationError validation = null;
-		validation = validateInputEntry(inputDate);
+		validation = validateInputEntry(inputDate, listaDeItemDeCompraAdicionadosNaTabela);
 		if (validation.isValid()) {
 			Date convertedDate = convertStringToDate(inputDate);
 			Compra compra = new Compra(fornecedor, convertedDate);
 			save(compra);
-			daoItemdecompra.saveRelationship(itemdecompra, compra);
+		//	daoItemdecompra.saveRelationship(listaDeItemDeCompraAdicionadosNaTabela, compra);
 		} else {
 			validation.getMsg();
 		}
@@ -53,7 +53,7 @@ public class CompraController {
 		dao.deleteRelationship(compra.getId());
 		List<ItemDeCompra> listaItemDeCompra = compra.getListaDeItemDeCompra();
 		for (ItemDeCompra itemdecompra1 : listaItemDeCompra) {
-			daoItemdecompra.saveRelationship(itemdecompra1, compra);
+		//	daoItemdecompra.saveRelationship(itemdecompra1, compra);
 			dao.update(compra);
 		}
 	}
@@ -76,7 +76,7 @@ public class CompraController {
 		
 	}
 
-	public ValidationError validateInputEntry(String inputDate) throws SQLException {
+	public ValidationError validateInputEntry(String inputDate,  List <Integer> listaDeItemDeCompraAdicionadosNaTabela) throws SQLException {
 
 		ValidationError validation = new ValidationError();
 		validation.setValid(true);
@@ -85,16 +85,17 @@ public class CompraController {
 		if (dataConvertida == null) {
 
 			validation.setValid(false);
-			validation.setMsg("Data inválida");
+			validation.setMsg("Data invalida.");
+			
 		}
+		
+		if (listaDeItemDeCompraAdicionadosNaTabela == null) {
 
-		// if (!isEditing) {
-		// boolean nomeDuplicado = dao.checkIfDuplicate(inputName);
-		// if (nomeDuplicado) {
-		// validation.setValid(false);
-		// validation.setMsg("O nome está duplicado");
-		// }
-		// }
+			validation.setValid(false);
+			validation.setMsg("Nenhum item adicionado.");
+		}
+		
+		
 
 		return validation;
 	}
@@ -129,5 +130,6 @@ public class CompraController {
 		}
 		return convertedDate;
 	}
+
 
 }

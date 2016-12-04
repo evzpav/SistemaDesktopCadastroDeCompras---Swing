@@ -9,6 +9,7 @@ import br.com.solvus.model.ConnectionPool;
 import br.com.solvus.model.ItemDeCompra;
 import br.com.solvus.model.ItemDeCompraDao;
 import br.com.solvus.model.Produto;
+import br.com.solvus.model.ProdutoDao;
 import br.com.solvus.viewSwing.util.ValidationError;
 
 public class ItemDeCompraController {
@@ -23,24 +24,29 @@ public class ItemDeCompraController {
 		daoCompra = new CompraDao(con);
 	}
 
-	public void adicionarItemDeCompra(Produto produto, Integer quantidade, Double valorUnitario) throws SQLException {
+	public void adicionarItemDeCompra(Produto produto, String quantidadeString, String valorUnitarioString) throws SQLException {
+		Integer quantidade = Integer.parseInt(quantidadeString);
+		Double valorUnitario = Double.parseDouble(valorUnitarioString);
+		
 		ValidationError validation = null;
 		validation = validateInputEntry(quantidade, valorUnitario);
 		if (validation.isValid()) {
+
 			ItemDeCompra itemdecompra = new ItemDeCompra(produto, quantidade, valorUnitario);
 			dao.save(itemdecompra);
+			
 		} else {
 			validation.getMsg();
 		}
 	}
 
-	public void excluirItemDeCompra(ItemDeCompra itemDeCompra) throws SQLException{
-				deleteById(itemDeCompra.getIdItemDeCompra());
+	public void excluirItemDeCompra(ItemDeCompra itemDeCompra) throws SQLException {
+		deleteById(itemDeCompra.getIdItemDeCompra());
 	}
 
 	public void update(ItemDeCompra itemdecompra) throws SQLException {
-//		dao.deleteRelationship(itemdecompra.getIdItemDeCompra());
-//		dao.saveRelationship(itemdecompra, compra);
+		// dao.deleteRelationship(itemdecompra.getIdItemDeCompra());
+		// dao.saveRelationship(itemdecompra, compra);
 		dao.update(itemdecompra);
 	}
 
@@ -49,12 +55,11 @@ public class ItemDeCompraController {
 	}
 
 	public List<ItemDeCompra> list() throws SQLException {
-		System.out.println("chegou no controller");
 		return dao.list();
 
 	}
 
-	public void deleteById(int idItemDeCompra) throws SQLException {
+	public void deleteById(Integer idItemDeCompra) throws SQLException {
 		dao.deleteById(idItemDeCompra);
 	}
 

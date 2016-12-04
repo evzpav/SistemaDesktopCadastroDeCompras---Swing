@@ -127,4 +127,21 @@ public class ProdutoDao implements DAO<Produto> {
 		return retorno;
 	}
 
+	public int findIdProduto(Produto produto) throws SQLException {
+		String sql = "select * from produto where nome_produto = (?)";
+		try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+			stmt.setString(1, produto.getNome());
+			stmt.execute();
+
+			ResultSet resultSet = stmt.getResultSet();
+			Integer idProduto = null;
+		
+			while (resultSet.next()) {
+				idProduto = resultSet.getInt("id_produto");
+				produto.setId(idProduto);
+			}
+			return idProduto;
+		}
+
+	}
 }
