@@ -9,6 +9,7 @@ public class Compra {
 	private Date dataCompra;
 	private List<ItemDeCompra> listaDeItemDeCompra;
 	private Fornecedor fornecedor;
+	private Double valorTotal;
 	
 	public Compra (Fornecedor fornecedor,Date dataCompra){
 		this.setFornecedor(fornecedor);
@@ -46,6 +47,14 @@ public class Compra {
 
 	public void setFornecedor(Fornecedor fornecedor) {
 		this.fornecedor = fornecedor;
+	}
+
+	public Double getValorTotal() {
+		return valorTotal;
+	}
+
+	public void setValorTotal(Double valorTotal) {
+		this.valorTotal = valorTotal;
 	}
 
 	}

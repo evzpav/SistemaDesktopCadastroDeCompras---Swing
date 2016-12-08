@@ -36,21 +36,26 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 				itemdecompra.setIdItemDeCompra(idItemDeCompra);
 			}
 
-//			for (Integer itemdecompra1 : compra.getListaDeItemDeCompra()) {
-//				this.saveRelationship(itemdecompra1, compra);
-//			}
+			// for (Integer itemdecompra1 : compra.getListaDeItemDeCompra()) {
+			// this.saveRelationship(itemdecompra1, compra);
+			// }
 
 		}
 
 	}
 
-	public void saveRelationship(Integer idItemDeCompra, Compra compra) throws SQLException {
+	public void saveRelationship(List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela, Compra compra)
+			throws SQLException {
 		try (PreparedStatement stmt = connection.prepareStatement(
 				"update itemdecompra set id_compra = (?) " + "where id_itemdecompra = (?)",
 				Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setInt(1, compra.getId());
-			stmt.setInt(2, idItemDeCompra);
-			stmt.execute();
+			for (ItemDeCompra itemDeCompra : listaDeItemDeCompraAdicionadosNaTabela) {
+				stmt.setInt(2, itemDeCompra.getIdItemDeCompra());
+				stmt.execute();
+			}
+			System.out.println("saveRelationship acionado");
+			
 		}
 	}
 
@@ -112,15 +117,6 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 
 	}
 
-	// public void deleteRelationship(Integer idItemDeCompra) throws
-	// SQLException {
-	// try (PreparedStatement stmt = connection.prepareStatement("delete from
-	// itemdecompra where id_compra = (?)",
-	// Statement.RETURN_GENERATED_KEYS)) {
-	// stmt.setInt(1, idCompra);
-	// stmt.execute();
-	//
-	// }
 
 	@Override
 	public List<ItemDeCompra> list() throws SQLException {
@@ -143,7 +139,7 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 				itemdecompra = new ItemDeCompra(produto, quantidade, valorUnitario);
 				itemdecompra.setIdItemDeCompra(idItemDeCompra);
 				listaItemDeCompra.add(itemdecompra);
-				
+
 			}
 			return listaItemDeCompra;
 		}
@@ -176,11 +172,11 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 			stmt.setDouble(3, itemdecompra.getValorUnitario());
 			stmt.execute();
 
-			// try (ResultSet keys = stmt.getGeneratedKeys()) {
-			// keys.next();
-			// int idItemDeCompra = keys.getInt("id_itemdecompra");
-			// itemdecompra.setIdItemDeCompra(idItemDeCompra);
-			// }
+			try (ResultSet keys = stmt.getGeneratedKeys()) {
+				keys.next();
+				int idItemDeCompra = keys.getInt("id_itemdecompra");
+				itemdecompra.setIdItemDeCompra(idItemDeCompra);
+			}
 
 		}
 

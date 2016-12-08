@@ -49,6 +49,12 @@ public class TabelaListagemCompraPanel extends JPanel {
 			e1.printStackTrace();
 		}
 		settarDataVector(dm, listaCompra);
+
+	}
+
+	public void atualizarPosFiltro(List <Compra> listaFiltrada) {
+		settarDataVector(dm, listaFiltrada);
+
 	}
 
 	private void settarDataVector(DefaultTableModel dm, List<Compra> listaCompra) {
@@ -59,7 +65,7 @@ public class TabelaListagemCompraPanel extends JPanel {
 			data[i][0] = listaCompra.get(i).getId();
 			data[i][1] = listaCompra.get(i).getFornecedor().getNome();
 			data[i][2] = listaCompra.get(i).getDataCompra();
-			data[i][3] = "Total da Venda";
+			data[i][3] = listaCompra.get(i).getValorTotal();
 
 			Compra compra = listaCompra.get(i);
 			String produtosConcatenados = "";
@@ -129,7 +135,7 @@ public class TabelaListagemCompraPanel extends JPanel {
 
 		try {
 			compraController.deleteById(idCompra);
-			// atualizar();
+			atualizar();
 
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
@@ -137,4 +143,5 @@ public class TabelaListagemCompraPanel extends JPanel {
 		}
 	}
 
+	
 }

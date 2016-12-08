@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -15,7 +16,9 @@ import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
 import br.com.solvus.controller.CompraController;
+import br.com.solvus.model.Compra;
 import br.com.solvus.model.Fornecedor;
+import br.com.solvus.model.Produto;
 
 import java.awt.Font;
 
@@ -26,6 +29,7 @@ public class ListagemCompraPanel extends JPanel {
 	private JTextField fieldDataFinal;
 	private CompraController compraController;
 	private List<Fornecedor> listaFornecedor;
+	private Fornecedor fornecedorSelecionado;
 	
 	/**
 	 * Create the panel.
@@ -85,7 +89,7 @@ public class ListagemCompraPanel extends JPanel {
 		
 		
 		
-		JComboBox comboFornecedor = new JComboBox();
+		final JComboBox comboFornecedor = new JComboBox();
 		GridBagConstraints gbc_comboFornecedor = new GridBagConstraints();
 		gbc_comboFornecedor.insets = new Insets(0, 0, 5, 5);
 		gbc_comboFornecedor.fill = GridBagConstraints.HORIZONTAL;
@@ -97,10 +101,14 @@ public class ListagemCompraPanel extends JPanel {
 			Fornecedor fornecedor =  listaFornecedor.get(i);
 			comboFornecedor.addItem(fornecedor);
 		}
-		
-		
-		
-		
+		comboFornecedor.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Fornecedor fornecedorSelecionado = (Fornecedor) comboFornecedor.getSelectedItem();
+				getFornecedorSelecionado(fornecedorSelecionado);
+			}
+		});
 		
 		
 		fieldDataInicial = new JTextField();
@@ -128,6 +136,22 @@ public class ListagemCompraPanel extends JPanel {
 		gbc_buttonFiltrar.gridy = 3;
 		add(buttonFiltrar, gbc_buttonFiltrar);
 		
+		
+		buttonFiltrar.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				Fornecedor fornecedorSelecionadoNoCombo = fornecedorSelecionado;
+				String dataInicialString = fieldDataInicial.getText();
+				String dataFinalString = fieldDataFinal.getText();
+				List<Compra> listaFiltrada = new ArrayList<Compra>();
+				listaFiltrada = compraController.filtrarListaDeCompra(fornecedorSelecionadoNoCombo, dataInicialString, dataFinalString);
+				tableListagemCompraPanel.atualizarPosFiltro(listaFiltrada);
+			}
+		});
+		
+		
 		GridBagConstraints gbc_panelforTableListagem = new GridBagConstraints();
 		gbc_panelforTableListagem.gridwidth = 4;
 		gbc_panelforTableListagem.fill = GridBagConstraints.BOTH;
@@ -141,5 +165,10 @@ public class ListagemCompraPanel extends JPanel {
 			}
 
 		});
+	}
+
+	protected void getFornecedorSelecionado(Fornecedor fornecedorSelecionado) {
+		this.fornecedorSelecionado = fornecedorSelecionado;
+				
 	}
 }

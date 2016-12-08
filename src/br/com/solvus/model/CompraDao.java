@@ -12,7 +12,7 @@ import java.util.List;
 public class CompraDao implements DAO<Compra> {
 
 	private final Connection connection;
-	private FornecedorDao fornecedorDao; 
+	private FornecedorDao fornecedorDao;
 
 	public CompraDao(Connection connection) {
 		this.connection = connection;
@@ -22,16 +22,19 @@ public class CompraDao implements DAO<Compra> {
 	@Override
 	public void save(Compra compra) throws SQLException {
 		try (PreparedStatement stmt = connection.prepareStatement(
-				"insert into compra(id_fornecedor, data_compra) values (?,?)", Statement.RETURN_GENERATED_KEYS)) {
+				"insert into compra(id_fornecedor, data_compra, valor_total) values (?,?,?)", Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setInt(1, compra.getFornecedor().getId());
 			stmt.setDate(2, new Date(compra.getDataCompra().getTime()));
+			stmt.setDouble(3,  compra.getValorTotal());
 			stmt.execute();
 
 			try (ResultSet keys = stmt.getGeneratedKeys()) {
 				keys.next();
 				int id = keys.getInt("id_compra");
 				compra.setId(id);
+				
 			}
+			System.out.println("saveCompra acionado");
 
 		}
 
@@ -50,7 +53,7 @@ public class CompraDao implements DAO<Compra> {
 		}
 
 	}
-	
+
 	@Override
 	public Compra findById(Integer idCompra) throws SQLException {
 		Compra compra = null;
@@ -72,7 +75,6 @@ public class CompraDao implements DAO<Compra> {
 		return compra;
 	}
 
-	
 	// String sql1 = "select * from fornecedor_produto"
 	// + " join produto on produto.id_produto = fornecedor_produto.id_produto "
 	// + "where id_fornecedor = (?)";
@@ -97,8 +99,6 @@ public class CompraDao implements DAO<Compra> {
 	// }
 	// }
 	// }
-
-	
 
 	@Override
 	public void deleteById(Integer idCompra) throws SQLException {
@@ -130,16 +130,66 @@ public class CompraDao implements DAO<Compra> {
 			Fornecedor fornecedor = null;
 			Compra compra = null;
 			while (resultSet.next()) {
+				int idCompra = resultSet.getInt("id_compra");
 				int idFornecedor = resultSet.getInt("id_fornecedor");
 				Date dataCompra = resultSet.getDate("data_compra");
 				fornecedor = fornecedorDao.findById(idFornecedor);
 				compra = new Compra(fornecedor, dataCompra);
 				listaCompra.add(compra);
+				compra.setId(idCompra);
 			}
 			return listaCompra;
 		}
 	}
 
+	public List<Compra> filtrarListaCompra(Fornecedor fornecedorSelecionadoNoCombo, java.sql.Date dataInicialConvertida,
+			java.sql.Date dataFinalConvertida) throws SQLException {
+		String sql = "select * from compra where id_fornecedor = (?) and data_compra between (?) and (?)";
+		try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+			stmt.setInt(1, fornecedorSelecionadoNoCombo.getId());
+			stmt.setDate(2, dataInicialConvertida);
+			stmt.setDate(3, dataFinalConvertida);
+			stmt.execute();
 
+			ResultSet resultSet = stmt.getResultSet();
+			ArrayList<Compra> listaCompra = new ArrayList<>();
+			Fornecedor fornecedor = null;
+			Compra compra = null;
+			while (resultSet.next()) {
+				int idCompra = resultSet.getInt("id_compra");
+				int idFornecedor = resultSet.getInt("id_fornecedor");
+				Date dataCompra = resultSet.getDate("data_compra");
+				fornecedor = fornecedorDao.findById(idFornecedor);
+				compra = new Compra(fornecedor, dataCompra);
+				listaCompra.add(compra);
+				compra.setId(idCompra);
+			}
+			return listaCompra;
 
+		}
+
+	}
+
+	public List<Compra> filtrarPorFornecedorApenas(Fornecedor fornecedorSelecionadoNoCombo) throws SQLException {
+		String sql = "select * from compra where id_fornecedor = (?)";
+		try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+			stmt.setInt(1, fornecedorSelecionadoNoCombo.getId());
+			stmt.execute();
+
+			ResultSet resultSet = stmt.getResultSet();
+			ArrayList<Compra> listaCompra = new ArrayList<>();
+			Fornecedor fornecedor = null;
+			Compra compra = null;
+			while (resultSet.next()) {
+				int idCompra = resultSet.getInt("id_compra");
+				int idFornecedor = resultSet.getInt("id_fornecedor");
+				Date dataCompra = resultSet.getDate("data_compra");
+				fornecedor = fornecedorDao.findById(idFornecedor);
+				compra = new Compra(fornecedor, dataCompra);
+				listaCompra.add(compra);
+				compra.setId(idCompra);
+			}
+			return listaCompra;
+		}
+	}
 }

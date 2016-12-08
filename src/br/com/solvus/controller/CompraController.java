@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class CompraController {
 
 	private CompraDao dao;
 	private FornecedorController fornecedorController;
+	private ItemDeCompraController itemDeCompraController;
 	private ItemDeCompraDao daoItemdecompra;
 	Connection con;
 
@@ -28,23 +30,28 @@ public class CompraController {
 		dao = new CompraDao(con);
 		daoItemdecompra = new ItemDeCompraDao(con);
 		fornecedorController = new FornecedorController();
-		
+		itemDeCompraController = new ItemDeCompraController();
 	}
 
-	public void saveCompra(Fornecedor fornecedor, String inputDate, List <Integer> listaDeItemDeCompraAdicionadosNaTabela) throws SQLException {
+	public void saveCompra(Fornecedor fornecedor, String dataCompra,
+			List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela, String valorTotalString) throws SQLException {
 		ValidationError validation = null;
-		validation = validateInputEntry(inputDate, listaDeItemDeCompraAdicionadosNaTabela);
+		validation = validateInputEntry(dataCompra, listaDeItemDeCompraAdicionadosNaTabela);
 		if (validation.isValid()) {
-			Date convertedDate = convertStringToDate(inputDate);
+			Date convertedDate = convertStringToDate(dataCompra);
+			Double valorTotal = Double.parseDouble(valorTotalString);
+			System.out.println(valorTotalString);
 			Compra compra = new Compra(fornecedor, convertedDate);
+			compra.setValorTotal(valorTotal);
+			compra.setListaDeItemDeCompra(listaDeItemDeCompraAdicionadosNaTabela);
 			save(compra);
-		//	daoItemdecompra.saveRelationship(listaDeItemDeCompraAdicionadosNaTabela, compra);
+			itemDeCompraController.saveItemDeCompra(listaDeItemDeCompraAdicionadosNaTabela);
+			itemDeCompraController.saveRelationship(listaDeItemDeCompraAdicionadosNaTabela, compra);
 		} else {
 			validation.getMsg();
 		}
 	}
-	
-	
+
 	public void save(Compra compra) throws SQLException {
 		dao.save(compra);
 	}
@@ -53,7 +60,6 @@ public class CompraController {
 		dao.deleteRelationship(compra.getId());
 		List<ItemDeCompra> listaItemDeCompra = compra.getListaDeItemDeCompra();
 		for (ItemDeCompra itemdecompra1 : listaItemDeCompra) {
-		//	daoItemdecompra.saveRelationship(itemdecompra1, compra);
 			dao.update(compra);
 		}
 	}
@@ -64,8 +70,8 @@ public class CompraController {
 
 	public List<Compra> list() throws SQLException {
 		return dao.list();
-		}
-	
+	}
+
 	public List<Fornecedor> listFornecedor() throws SQLException {
 		return fornecedorController.listFornecedor();
 	}
@@ -73,10 +79,11 @@ public class CompraController {
 	public void deleteById(int idCompra) throws SQLException {
 		dao.deleteRelationship(idCompra);
 		dao.deleteById(idCompra);
-		
+
 	}
 
-	public ValidationError validateInputEntry(String inputDate,  List <Integer> listaDeItemDeCompraAdicionadosNaTabela) throws SQLException {
+	public ValidationError validateInputEntry(String inputDate,
+			List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela) throws SQLException {
 
 		ValidationError validation = new ValidationError();
 		validation.setValid(true);
@@ -86,16 +93,14 @@ public class CompraController {
 
 			validation.setValid(false);
 			validation.setMsg("Data invalida.");
-			
+
 		}
-		
-		if (listaDeItemDeCompraAdicionadosNaTabela == null) {
+
+		if (listaDeItemDeCompraAdicionadosNaTabela.isEmpty()) {
 
 			validation.setValid(false);
 			validation.setMsg("Nenhum item adicionado.");
 		}
-		
-		
 
 		return validation;
 	}
@@ -131,5 +136,38 @@ public class CompraController {
 		return convertedDate;
 	}
 
+	public List<Compra> filtrarListaDeCompra(Fornecedor fornecedorSelecionadoNoCombo, String dataInicialString,
+			String dataFinalString) {
+		List<Compra> listaFiltrada = new ArrayList<Compra>();
+		
+		if (dataInicialString.isEmpty() && dataFinalString.isEmpty()) {
+			try {
+				listaFiltrada = dao.filtrarPorFornecedorApenas(fornecedorSelecionadoNoCombo);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		} else {
+			
+			Date dataInicialConvertida = convertStringToDate(dataInicialString);
+			Date dataFinalConvertida = convertStringToDate(dataFinalString);
+			java.sql.Date dataInicialSql = new java.sql.Date(dataInicialConvertida.getTime());
+			java.sql.Date DataFinalSql = new java.sql.Date(dataFinalConvertida.getTime());
+			
+
+			try {
+				listaFiltrada = dao.filtrarListaCompra(fornecedorSelecionadoNoCombo, dataInicialSql, DataFinalSql);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return listaFiltrada;
+	}
+
+	private void getListaFiltrada(List<Compra> listaFiltrada) {
+
+	}
 
 }

@@ -4,13 +4,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import br.com.solvus.model.Compra;
 import br.com.solvus.model.CompraDao;
 import br.com.solvus.model.ConnectionPool;
 import br.com.solvus.model.ItemDeCompra;
 import br.com.solvus.model.ItemDeCompraDao;
 import br.com.solvus.model.Produto;
-import br.com.solvus.model.ProdutoDao;
 import br.com.solvus.viewSwing.util.ValidationError;
+import br.com.solvus.viewSwing.util.ValidationException;
 
 public class ItemDeCompraController {
 
@@ -22,24 +23,52 @@ public class ItemDeCompraController {
 		this.con = ConnectionPool.CONNECTIONPOOL.getConnection();
 		dao = new ItemDeCompraDao(con);
 		daoCompra = new CompraDao(con);
+	
 	}
 
-	public void adicionarItemDeCompra(Produto produto, String quantidadeString, String valorUnitarioString) throws SQLException {
+	public ItemDeCompra adicionarItemDeCompra(Produto produto, String quantidadeString, String valorUnitarioString) throws ValidationException {
 		Integer quantidade = Integer.parseInt(quantidadeString);
 		Double valorUnitario = Double.parseDouble(valorUnitarioString);
 		
+		ItemDeCompra itemdecompra = null;
 		ValidationError validation = null;
 		validation = validateInputEntry(quantidade, valorUnitario);
 		if (validation.isValid()) {
 
-			ItemDeCompra itemdecompra = new ItemDeCompra(produto, quantidade, valorUnitario);
-			dao.save(itemdecompra);
+			itemdecompra = new ItemDeCompra(produto, quantidade, valorUnitario);
 			
 		} else {
-			validation.getMsg();
+			throw new ValidationException(validation);
 		}
+		
+		return itemdecompra;
 	}
 
+	public void saveItemDeCompra(List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela ){
+		for (ItemDeCompra itemDeCompra : listaDeItemDeCompraAdicionadosNaTabela) {
+			try {
+				dao.save(itemDeCompra);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("saveItemDeCompra acionado");
+		}
+		
+	}
+	
+	public void saveRelationship(List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela, Compra compra ){
+		try {
+			dao.saveRelationship(listaDeItemDeCompraAdicionadosNaTabela, compra);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("saveRelationship controller acionado");
+		}
+		
+	
+	
 	public void excluirItemDeCompra(ItemDeCompra itemDeCompra) throws SQLException {
 		deleteById(itemDeCompra.getIdItemDeCompra());
 	}
@@ -63,7 +92,7 @@ public class ItemDeCompraController {
 		dao.deleteById(idItemDeCompra);
 	}
 
-	public ValidationError validateInputEntry(Integer quantidade, Double valorUnitario) throws SQLException {
+	public ValidationError validateInputEntry(Integer quantidade, Double valorUnitario)  {
 
 		ValidationError validation = new ValidationError();
 		validation.setValid(true);

@@ -36,5 +36,6 @@ public class ConteudoCompraPanel extends JPanel {
 
 	public void showListagemComprasPanel() {
 		cardlayout.show(this, "1");
+		tableListagemCompra.atualizar();
 	}
 }
