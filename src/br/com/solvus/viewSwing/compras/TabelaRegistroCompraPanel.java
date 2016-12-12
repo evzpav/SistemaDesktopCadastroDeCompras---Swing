@@ -4,8 +4,10 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -24,26 +26,27 @@ public class TabelaRegistroCompraPanel extends JPanel {
 	private ConteudoCompraPanel conteudoCompraPanel;
 	private DefaultTableModel dm;
 	private ItemDeCompraController itemDeCompraController;
-	public 	List<ItemDeCompra> listaPreenchida;
+	private List<ItemDeCompra> listaPreenchida;
 	private RegistroCompraPanel registroCompraPanel;
+	private Double valorTotal;
 
 	public TabelaRegistroCompraPanel(RegistroCompraPanel registroCompraPanel) {
 		super(new GridLayout(1, 0));
 		this.registroCompraPanel = registroCompraPanel;
-		
+
 		dm = new DefaultTableModel();
 
 		tableItemDeCompra = new JTable(dm);
 		itemDeCompraController = new ItemDeCompraController();
 		tableItemDeCompra.setPreferredScrollableViewportSize(new Dimension(700, 500));
 		tableItemDeCompra.setFillsViewportHeight(true);
-		listaPreenchida = new ArrayList<ItemDeCompra>();
 
 		JScrollPane scrollPane = new JScrollPane(tableItemDeCompra);
 		add(scrollPane);
 	}
 
 	public void atualizar() {
+		listaPreenchida = getListaPreenchida();
 		settarDataVector(dm, listaPreenchida);
 	}
 
@@ -55,7 +58,8 @@ public class TabelaRegistroCompraPanel extends JPanel {
 			data[i][0] = listaItemDeCompra.get(i).getIdItemDeCompra();
 			data[i][1] = listaItemDeCompra.get(i).getProduto().getNome();
 			data[i][2] = listaItemDeCompra.get(i).getQuantidade();
-			data[i][3] = listaItemDeCompra.get(i).getValorUnitario();
+			data[i][3] = converteDoubleToMoney(listaItemDeCompra.get(i).getValorUnitario());
+
 			data[i][4] = "Excluir";
 
 			Object[] types = new Object[] { "ID", "Produto", "Quantidade", "Valor Unitario", "Excluir" };
@@ -77,40 +81,18 @@ public class TabelaRegistroCompraPanel extends JPanel {
 		}
 	}
 
-	// private void editar(final ConteudoCompraPanel conteudoCompraPanel, final
-	// JTable tableItemDeCompra) {
-	// int idItemDeCompra = (int)
-	// tableItemDeCompra.getValueAt(tableItemDeCompra.getSelectedRow(), 0);
-	//
-	// ItemDeCompra itemdecompra;
-	//
-	// try {
-	// itemdecompra = itemDeCompraController.findById(idItemDeCompra);
-	// itemDeCompraController.update(itemdecompra);
-	//
-	//
-	// }
-	//
-	//
-	// } catch (SQLException e1) {
-	// // TODO Auto-generated catch block
-	// e1.printStackTrace();
-	// }
-	// }
-
 	private void excluir(JTable tableItemDeCompra) {
 		this.listaPreenchida.remove(tableItemDeCompra.getSelectedRow());
-		System.out.println(tableItemDeCompra.getSelectedRow());
-		System.out.println(listaPreenchida);
 
 		atualizar();
 
 		registroCompraPanel.mostrarValorTotal();
-		
-		if(listaPreenchida.isEmpty()){
-			dm.removeRow(dm.getRowCount()-1);
-			}
-		
+
+		if (listaPreenchida.isEmpty()) {
+			dm.removeRow(dm.getRowCount() - 1);
+		}
+	//	registroCompraPanel.mostrarValorTotal();
+
 	}
 
 	public List<Integer> getListaIdItemDeCompraDaTabela() {
@@ -121,36 +103,58 @@ public class TabelaRegistroCompraPanel extends JPanel {
 
 			listaItemDeCompraDaTabela.add(idItemDeCompra);
 		}
-		System.out.println(listaItemDeCompraDaTabela);
 		return listaItemDeCompraDaTabela;
 
 	}
 
 	public String somaValorTotal() {
-		Double valorTotal = 0.00;
-		for (int i = 0; i < tableItemDeCompra.getRowCount(); i++) {
-			Double valorUnitario = (Double) tableItemDeCompra.getValueAt(i, 3);
-			Integer quantidade = (Integer) tableItemDeCompra.getValueAt(i, 2);
+		Double valorTotal = 0.00d;
+		String valorTotalString = "00,00";
+		if (listaPreenchida.size() > 0) {
+			for (ItemDeCompra itemDeCompra : listaPreenchida) {
+				Integer	quantidade = itemDeCompra.getQuantidade();
+				Double	valorUnitario = itemDeCompra.getValorUnitario();
+				valorTotal = valorTotal + valorUnitario * quantidade;
+			}
 
-			valorTotal = valorTotal + valorUnitario * quantidade;
+			setValorTotalDouble(valorTotal);
+			valorTotalString = converteDoubleToMoney(valorTotal);
 		}
-		String valorTotalString = String.valueOf(valorTotal);
 		return valorTotalString;
+	}
+
+	public String converteDoubleToMoney(Double valorTotal) {
+		Locale ptBr = new Locale("pt", "BR");
+		String valorTotalString = NumberFormat.getCurrencyInstance(ptBr).format(valorTotal);
+		return valorTotalString;
+	}
+
+	public void setValorTotalDouble(Double valorTotal) {
+		this.valorTotal = valorTotal;
+
+	}
+
+	public Double getValorTotalDouble() {
+		return valorTotal;
 	}
 
 	public void limparTabelaItemDeCompra() {
 		for (int i = 0; i < listaPreenchida.size(); i++) {
-				this.listaPreenchida.remove(i);
+			this.listaPreenchida.remove(i);
 		}
-	
+
 		atualizar();
-		dm.removeRow(dm.getRowCount()-1);
+		dm.removeRow(dm.getRowCount() - 1);
 	}
 
-	public void getListaPreenchida(List<ItemDeCompra> listaPreenchida2) {
+	public void setListaPreenchida(List<ItemDeCompra> listaPreenchida2) {
 
 		this.listaPreenchida = listaPreenchida2;
 
+	}
+
+	public List<ItemDeCompra> getListaPreenchida() {
+		return listaPreenchida;
 	}
 
 }

@@ -1,6 +1,8 @@
 package br.com.solvus.viewSwing.util;
 
 import java.awt.CardLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.sql.SQLException;
 
 import javax.swing.JFrame;
@@ -75,11 +77,24 @@ public class MainFrame extends JFrame {
 		menuBar.add(produtosMenu);
 		menuBar.add(comprasMenu);
 
-		fornecedoresMenu.addMenuListener(new MenuListener() {
+//		fornecedoresMenu.addMenuListener(new MenuListener() {
+//			public void menuSelected(MenuEvent ev) {
+//				meuCardlayout.show(panelCont, "1");
+//				conteudoFornecedorPanel.showTabelaFornPanel();
+//				mudaTituloFornecedor();
+//			}
+//
+//			public void menuDeselected(MenuEvent ev) {
+//			}
+//
+//			public void menuCanceled(MenuEvent ev) {
+//			}
+//		});
+
+		
+		fornecedoresMenu.addMouseListener(new MouseListener() {
 			public void menuSelected(MenuEvent ev) {
-				meuCardlayout.show(panelCont, "1");
-				conteudoFornecedorPanel.showTabelaFornPanel();
-				mudaTituloFornecedor();
+				
 			}
 
 			public void menuDeselected(MenuEvent ev) {
@@ -87,33 +102,157 @@ public class MainFrame extends JFrame {
 
 			public void menuCanceled(MenuEvent ev) {
 			}
-		});
 
-		produtosMenu.addMenuListener(new MenuListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				meuCardlayout.show(panelCont, "1");
+				conteudoFornecedorPanel.showTabelaFornPanel();
+				mudaTituloFornecedor();
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		
+		produtosMenu.addMouseListener(new MouseListener() {
 			public void menuSelected(MenuEvent evv) {
+				
+			}
+
+			public void menuDeselected(MenuEvent evv) {
+			}
+
+			public void menuCanceled(MenuEvent evv) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
 				meuCardlayout.show(panelCont, "2");
 				conteudoProdutoPanel.showTabelaProdPanel();
 				mudaTituloProduto();
+				
 			}
 
-			public void menuDeselected(MenuEvent evv) {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
 			}
 
-			public void menuCanceled(MenuEvent evv) {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 
-		comprasMenu.addMenuListener(new MenuListener() {
+//		produtosMenu.addMenuListener(new MenuListener() {
+//			public void menuSelected(MenuEvent evv) {
+//				meuCardlayout.show(panelCont, "2");
+//				conteudoProdutoPanel.showTabelaProdPanel();
+//				mudaTituloProduto();
+//			}
+//
+//			public void menuDeselected(MenuEvent evv) {
+//			}
+//
+//			public void menuCanceled(MenuEvent evv) {
+//			}
+//		});
+		
+//		comprasMenu.addMenuListener(new MenuListener() {
+//			public void menuSelected(MenuEvent evv) {
+//				meuCardlayout.show(panelCont, "3");
+//				conteudoCompraPanel.showListagemComprasPanel();
+//				
+//				mudaTituloCompras();
+//			}
+//
+//			public void menuDeselected(MenuEvent evv) {
+//			}
+//
+//			public void menuCanceled(MenuEvent evv) {
+//			}
+//		});
+//		return menuBar;
+		
+		comprasMenu.addMouseListener(new MouseListener() {
 			public void menuSelected(MenuEvent evv) {
-				meuCardlayout.show(panelCont, "3");
-				conteudoCompraPanel.showListagemComprasPanel();
-				mudaTituloCompras();
+		
 			}
 
 			public void menuDeselected(MenuEvent evv) {
 			}
 
 			public void menuCanceled(MenuEvent evv) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				meuCardlayout.show(panelCont, "3");
+				conteudoCompraPanel.showListagemComprasPanel();
+				
+				mudaTituloCompras();
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 		return menuBar;

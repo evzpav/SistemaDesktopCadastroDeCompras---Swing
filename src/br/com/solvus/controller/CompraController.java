@@ -16,39 +16,42 @@ import br.com.solvus.model.Fornecedor;
 import br.com.solvus.model.ItemDeCompra;
 import br.com.solvus.model.ItemDeCompraDao;
 import br.com.solvus.viewSwing.util.ValidationError;
+import br.com.solvus.viewSwing.util.ValidationException;
 
 public class CompraController {
 
 	private CompraDao dao;
 	private FornecedorController fornecedorController;
 	private ItemDeCompraController itemDeCompraController;
-	private ItemDeCompraDao daoItemdecompra;
+	private boolean salvoComSucesso;
 	Connection con;
 
 	public CompraController() {
 		this.con = ConnectionPool.CONNECTIONPOOL.getConnection();
 		dao = new CompraDao(con);
-		daoItemdecompra = new ItemDeCompraDao(con);
+		new ItemDeCompraDao(con);
 		fornecedorController = new FornecedorController();
 		itemDeCompraController = new ItemDeCompraController();
+		salvoComSucesso = false;
 	}
 
 	public void saveCompra(Fornecedor fornecedor, String dataCompra,
-			List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela, String valorTotalString) throws SQLException {
+			List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela, Double valorTotalDouble)
+			throws ValidationException, SQLException {
 		ValidationError validation = null;
-		validation = validateInputEntry(dataCompra, listaDeItemDeCompraAdicionadosNaTabela);
+		validation = validateInputEntry(fornecedor, dataCompra, listaDeItemDeCompraAdicionadosNaTabela);
+
 		if (validation.isValid()) {
 			Date convertedDate = convertStringToDate(dataCompra);
-			Double valorTotal = Double.parseDouble(valorTotalString);
-			System.out.println(valorTotalString);
 			Compra compra = new Compra(fornecedor, convertedDate);
-			compra.setValorTotal(valorTotal);
+			compra.setValorTotal(valorTotalDouble);
 			compra.setListaDeItemDeCompra(listaDeItemDeCompraAdicionadosNaTabela);
 			save(compra);
 			itemDeCompraController.saveItemDeCompra(listaDeItemDeCompraAdicionadosNaTabela);
 			itemDeCompraController.saveRelationship(listaDeItemDeCompraAdicionadosNaTabela, compra);
+			setSalvoComSucesso();
 		} else {
-			validation.getMsg();
+			throw new ValidationException(validation);
 		}
 	}
 
@@ -56,13 +59,26 @@ public class CompraController {
 		dao.save(compra);
 	}
 
-	public void update(Compra compra) throws SQLException {
-		dao.deleteRelationship(compra.getId());
-		List<ItemDeCompra> listaItemDeCompra = compra.getListaDeItemDeCompra();
-		for (ItemDeCompra itemdecompra1 : listaItemDeCompra) {
-			dao.update(compra);
+	public void updateCompra(Fornecedor fornecedor, String dataCompra, Compra compraAEditar,
+			List<ItemDeCompra> listaDeItemDeCompraEditada) throws ValidationException, SQLException {
+		ValidationError validation = null;
+		validation = validateInputEntry(fornecedor, dataCompra, listaDeItemDeCompraEditada);
+
+		if (validation.isValid()) {
+			dao.deleteRelationship(compraAEditar.getId());
+			java.util.Date dataCompraConvertida = convertStringToDate(dataCompra);
+			compraAEditar.setDataCompra(dataCompraConvertida);
+			compraAEditar.setListaDeItemDeCompra(listaDeItemDeCompraEditada);
+			compraAEditar.setFornecedor(fornecedor);
+			dao.update(compraAEditar);
+			itemDeCompraController.saveItemDeCompra(listaDeItemDeCompraEditada);
+			itemDeCompraController.saveRelationship(listaDeItemDeCompraEditada, compraAEditar);
+			setSalvoComSucesso();
+		} else {
+			throw new ValidationException(validation);
 		}
 	}
+
 
 	public Compra findById(Integer idCompra) throws SQLException {
 		return dao.findById(idCompra);
@@ -82,11 +98,15 @@ public class CompraController {
 
 	}
 
-	public ValidationError validateInputEntry(String inputDate,
+	public ValidationError validateInputEntry(Fornecedor fornecedor, String inputDate,
 			List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela) throws SQLException {
-
 		ValidationError validation = new ValidationError();
 		validation.setValid(true);
+
+		if (fornecedor == null) {
+			validation.setValid(false);
+			validation.setMsg("Nenhum fornecedor selecionado.");
+		}
 
 		Date dataConvertida = convertStringToDate(inputDate);
 		if (dataConvertida == null) {
@@ -100,6 +120,19 @@ public class CompraController {
 
 			validation.setValid(false);
 			validation.setMsg("Nenhum item adicionado.");
+		}
+
+	
+		return validation;
+	}
+
+	public ValidationError validateInputEntryFiltrar(Fornecedor fornecedorSelecionadoNoCombo) throws SQLException {
+		ValidationError validation = new ValidationError();
+		validation.setValid(true);
+
+		if (fornecedorSelecionadoNoCombo == null) {
+			validation.setValid(false);
+			validation.setMsg("Nenhum fornecedor selecionado.");
 		}
 
 		return validation;
@@ -137,31 +170,38 @@ public class CompraController {
 	}
 
 	public List<Compra> filtrarListaDeCompra(Fornecedor fornecedorSelecionadoNoCombo, String dataInicialString,
-			String dataFinalString) {
-		List<Compra> listaFiltrada = new ArrayList<Compra>();
-		
-		if (dataInicialString.isEmpty() && dataFinalString.isEmpty()) {
-			try {
-				listaFiltrada = dao.filtrarPorFornecedorApenas(fornecedorSelecionadoNoCombo);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		} else {
-			
-			Date dataInicialConvertida = convertStringToDate(dataInicialString);
-			Date dataFinalConvertida = convertStringToDate(dataFinalString);
-			java.sql.Date dataInicialSql = new java.sql.Date(dataInicialConvertida.getTime());
-			java.sql.Date DataFinalSql = new java.sql.Date(dataFinalConvertida.getTime());
-			
+			String dataFinalString) throws SQLException, ValidationException {
 
-			try {
-				listaFiltrada = dao.filtrarListaCompra(fornecedorSelecionadoNoCombo, dataInicialSql, DataFinalSql);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		List<Compra> listaFiltrada = new ArrayList<Compra>();
+
+		ValidationError validation = null;
+		validation = validateInputEntryFiltrar(fornecedorSelecionadoNoCombo);
+		if (validation.isValid()) {
+
+			if (dataInicialString.isEmpty() && dataFinalString.isEmpty()) {
+				try {
+					listaFiltrada = dao.filtrarPorFornecedorApenas(fornecedorSelecionadoNoCombo);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			} else {
+
+				Date dataInicialConvertida = convertStringToDate(dataInicialString);
+				Date dataFinalConvertida = convertStringToDate(dataFinalString);
+				java.sql.Date dataInicialSql = new java.sql.Date(dataInicialConvertida.getTime());
+				java.sql.Date DataFinalSql = new java.sql.Date(dataFinalConvertida.getTime());
+
+				try {
+					listaFiltrada = dao.filtrarListaCompra(fornecedorSelecionadoNoCombo, dataInicialSql, DataFinalSql);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+		} else {
+			throw new ValidationException(validation);
 		}
 		return listaFiltrada;
 	}
@@ -169,5 +209,22 @@ public class CompraController {
 	private void getListaFiltrada(List<Compra> listaFiltrada) {
 
 	}
+	
+	public boolean fornecedorHasRelationshipCompra (int idFornecedor) throws SQLException {
+
+		return dao.fornecedorHasRelationshipCompra(idFornecedor);
+	}
+
+	public void setSalvoComSucesso() {
+		salvoComSucesso = true;
+		
+	}
+
+	public boolean getSalvoComSucesso() {
+		return salvoComSucesso;
+		
+	}
+	
+
 
 }

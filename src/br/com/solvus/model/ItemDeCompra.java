@@ -13,6 +13,10 @@ public class ItemDeCompra {
 		this.quantidade = quantidade;
 		this.valorUnitario = valorUnitario;
 	}
+	
+	public ItemDeCompra(){
+		
+	}
 
 	public int getIdItemDeCompra() {
 		return idItemDeCompra;

@@ -134,7 +134,8 @@ public class TabelaProdutoPanel extends JPanel {
 	private void excluir(final JTable table) {
 		int idProdutoaExcluir = (int) table.getValueAt(table.getSelectedRow(), 0);
 		try {
-			if (!controller.hasRelationship(idProdutoaExcluir)) {
+			if (!controller.hasRelationshipFornecedor(idProdutoaExcluir) || !controller.hasRelationshipCompra(idProdutoaExcluir)) {
+				
 				controller.deleteById(idProdutoaExcluir);
 				mostrarMensagemProdutoExcluido();
 				refreshTable();

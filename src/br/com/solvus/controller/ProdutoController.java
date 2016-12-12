@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.solvus.model.ConnectionPool;
+import br.com.solvus.model.ItemDeCompraDao;
 import br.com.solvus.model.Produto;
 import br.com.solvus.model.ProdutoDao;
 import br.com.solvus.viewSwing.util.ValidationError;
@@ -13,11 +14,13 @@ import br.com.solvus.viewSwing.util.ValidationError;
 public class ProdutoController {
 
 	private ProdutoDao dao;
+	private ItemDeCompraDao itemDeCompraDao;
 	Connection con;
 
 	public ProdutoController() {
 		this.con = ConnectionPool.CONNECTIONPOOL.getConnection();
 		dao = new ProdutoDao(con);
+		itemDeCompraDao = new ItemDeCompraDao(con);
 	}
 	
 	
@@ -45,10 +48,15 @@ public class ProdutoController {
 		dao.deleteById(idProduto);
 	}
 
-	public boolean hasRelationship(int idProduto) throws SQLException {
+	public boolean hasRelationshipFornecedor(int idProduto) throws SQLException {
 
-		return dao.hasRelationship(idProduto);
+		return dao.hasRelationshipFornecedor(idProduto);
 	}
+	public boolean hasRelationshipCompra(int idProduto) throws SQLException {
+
+		return itemDeCompraDao.produtoHasRelationshipCompra(idProduto);
+	}
+	
 
 	public ValidationError validateInputEntry(String inputName, boolean isEditing) throws SQLException {
 		ValidationError validation = new ValidationError();

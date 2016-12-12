@@ -23,28 +23,29 @@ public class ItemDeCompraController {
 		this.con = ConnectionPool.CONNECTIONPOOL.getConnection();
 		dao = new ItemDeCompraDao(con);
 		daoCompra = new CompraDao(con);
-	
+
 	}
 
-	public ItemDeCompra adicionarItemDeCompra(Produto produto, String quantidadeString, String valorUnitarioString) throws ValidationException {
-		Integer quantidade = Integer.parseInt(quantidadeString);
-		Double valorUnitario = Double.parseDouble(valorUnitarioString);
-		
+	public ItemDeCompra adicionarItemDeCompra(Produto produto, String quantidadeString, String valorUnitarioString)
+			throws ValidationException {
+
 		ItemDeCompra itemdecompra = null;
 		ValidationError validation = null;
-		validation = validateInputEntry(quantidade, valorUnitario);
+		validation = validateInputEntry(produto, quantidadeString, valorUnitarioString);
 		if (validation.isValid()) {
+			Integer quantidade = Integer.parseInt(quantidadeString);
+			Double valorUnitario = Double.parseDouble(valorUnitarioString);
 
 			itemdecompra = new ItemDeCompra(produto, quantidade, valorUnitario);
-			
+
 		} else {
 			throw new ValidationException(validation);
 		}
-		
+
 		return itemdecompra;
 	}
 
-	public void saveItemDeCompra(List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela ){
+	public void saveItemDeCompra(List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela) {
 		for (ItemDeCompra itemDeCompra : listaDeItemDeCompraAdicionadosNaTabela) {
 			try {
 				dao.save(itemDeCompra);
@@ -52,30 +53,36 @@ public class ItemDeCompraController {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("saveItemDeCompra acionado");
+
 		}
-		
+
 	}
-	
-	public void saveRelationship(List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela, Compra compra ){
+
+	public void saveRelationship(List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela, Compra compra) {
 		try {
 			dao.saveRelationship(listaDeItemDeCompraAdicionadosNaTabela, compra);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("saveRelationship controller acionado");
-		}
-		
-	
-	
+	}
+
+	// public void deleteRelationship(List<ItemDeCompra>
+	// listaDeItemDeCompraAdicionadosNaTabela, Compra compra) {
+	// try {
+	// dao.deleteRelationship(listaDeItemDeCompraAdicionadosNaTabela, compra);
+	// } catch (SQLException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// }
+
 	public void excluirItemDeCompra(ItemDeCompra itemDeCompra) throws SQLException {
 		deleteById(itemDeCompra.getIdItemDeCompra());
 	}
 
 	public void update(ItemDeCompra itemdecompra) throws SQLException {
-		// dao.deleteRelationship(itemdecompra.getIdItemDeCompra());
-		// dao.saveRelationship(itemdecompra, compra);
+
 		dao.update(itemdecompra);
 	}
 
@@ -83,8 +90,8 @@ public class ItemDeCompraController {
 		return dao.findById(idItemdecompra);
 	}
 
-	public List<ItemDeCompra> list() throws SQLException {
-		return dao.list();
+	public List<ItemDeCompra> list(int idCompra) throws SQLException {
+		return dao.list(idCompra);
 
 	}
 
@@ -92,29 +99,60 @@ public class ItemDeCompraController {
 		dao.deleteById(idItemDeCompra);
 	}
 
-	public ValidationError validateInputEntry(Integer quantidade, Double valorUnitario)  {
+	public ValidationError validateInputEntry(Produto produto, String quantidadeString, String valorUnitarioString) {
 
 		ValidationError validation = new ValidationError();
 		validation.setValid(true);
 
-		if (quantidade == null) {
+		if (produto == null) {
 			validation.setValid(false);
-			validation.setMsg("Quantidade está em branco");
+			validation.setMsg("Nenhum produto selecionado");
 		}
 
-		if (valorUnitario == null) {
+		if (quantidadeString.isEmpty() || valorUnitarioString.isEmpty()) {
 			validation.setValid(false);
-			validation.setMsg("Valor unitário está em branco");
+			validation.setMsg("Quantidade ou valor está em branco.");
+		}
+		if (!isInteger(quantidadeString)) {
+			validation.setValid(false);
+			validation.setMsg("Quantidade não é válida.");
 		}
 
-		// if (!isEditing) {
-		// boolean nomeDuplicado = dao.checkIfDuplicate(inputName);
-		// if (nomeDuplicado) {
-		// validation.setValid(false);
-		// validation.setMsg("O nome está duplicado");
-		// }
-		// }
+		if (!isDouble(valorUnitarioString)) {
+			validation.setValid(false);
+			validation.setMsg("Valor não é válido.");
+		}
+
+		if (validation.isValid()) {
+			Integer quantidade = Integer.parseInt(quantidadeString);
+			Double valorUnitario = Double.parseDouble(valorUnitarioString);
+
+			if (quantidade <= 0 || valorUnitario <= 0) {
+				validation.setValid(false);
+				validation.setMsg("Quantidade ou valor não válidos. Digite quantidade ou valor positivos.");
+			}
+		}
+
 		return validation;
+
+	}
+
+	public boolean isInteger(String string) {
+		try {
+			Integer.valueOf(string);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
+
+	public boolean isDouble(String string) {
+		try {
+			Double.valueOf(string);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
 	}
 
 }

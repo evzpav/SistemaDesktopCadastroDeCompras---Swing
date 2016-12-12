@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import br.com.solvus.controller.FornecedorController;
 import br.com.solvus.model.Fornecedor;
 import br.com.solvus.model.Produto;
+import br.com.solvus.viewSwing.compras.RegistroCompraPanel;
 
 public class ConteudoFornecedorPanel extends JPanel {
 
@@ -17,6 +18,7 @@ public class ConteudoFornecedorPanel extends JPanel {
 	private CadastroFornecedorPanel cadastroFornecedorPanel;
 	private TabelaFornecedorPanel tabelaFornecedor;
 	private FornecedorController controller;
+
 	
 	
 	public ConteudoFornecedorPanel() {
@@ -39,8 +41,6 @@ public class ConteudoFornecedorPanel extends JPanel {
 	
 		cadastroFornecedorPanel.removeCheckboxPanel();
 		cadastroFornecedorPanel.generateCheckbox();
-
-
 	}
 
 	public void showTabelaFornPanel() {
@@ -63,4 +63,6 @@ public class ConteudoFornecedorPanel extends JPanel {
 		cadastroFornecedorPanel.setEditFornecedor(fornecedor);
 
 	}
+	
+	
 }

@@ -34,7 +34,6 @@ public class CompraDao implements DAO<Compra> {
 				compra.setId(id);
 				
 			}
-			System.out.println("saveCompra acionado");
 
 		}
 
@@ -75,30 +74,7 @@ public class CompraDao implements DAO<Compra> {
 		return compra;
 	}
 
-	// String sql1 = "select * from fornecedor_produto"
-	// + " join produto on produto.id_produto = fornecedor_produto.id_produto "
-	// + "where id_fornecedor = (?)";
-	// try (PreparedStatement pstmt = connection.prepareStatement(sql1)) {
-	// pstmt.setInt(1, idFornecedor);
-	// pstmt.execute();
-	//
-	// ResultSet resultSet1 = pstmt.getResultSet();
-	// Produto produto = null;
-	// List<Produto> listagemProdutos = new ArrayList<Produto>();
-	//
-	// while (resultSet1.next()) {
-	// int produtoId = resultSet1.getInt("id_produto");
-	// String nomeProduto = resultSet1.getString("nome_produto");
-	// produto = new Produto(nomeProduto);
-	// produto.setId(produtoId);
-	// listagemProdutos.add(produto);
-	//
-	// }
-	// fornecedor.setListagemProdutos(listagemProdutos);
-	// return fornecedor;
-	// }
-	// }
-	// }
+
 
 	@Override
 	public void deleteById(Integer idCompra) throws SQLException {
@@ -135,8 +111,11 @@ public class CompraDao implements DAO<Compra> {
 				Date dataCompra = resultSet.getDate("data_compra");
 				fornecedor = fornecedorDao.findById(idFornecedor);
 				compra = new Compra(fornecedor, dataCompra);
-				listaCompra.add(compra);
+				Double valorTotal = resultSet.getDouble("valor_total");
+				compra.setValorTotal(valorTotal);
+	//			compra.setListaDeItemDeCompra(listaDeItemDeCompra);
 				compra.setId(idCompra);
+				listaCompra.add(compra);
 			}
 			return listaCompra;
 		}
@@ -184,12 +163,34 @@ public class CompraDao implements DAO<Compra> {
 				int idCompra = resultSet.getInt("id_compra");
 				int idFornecedor = resultSet.getInt("id_fornecedor");
 				Date dataCompra = resultSet.getDate("data_compra");
+				Double valorTotal = resultSet.getDouble("valor_total");
 				fornecedor = fornecedorDao.findById(idFornecedor);
 				compra = new Compra(fornecedor, dataCompra);
+				compra.setValorTotal(valorTotal);
 				listaCompra.add(compra);
 				compra.setId(idCompra);
 			}
 			return listaCompra;
 		}
+	}
+	
+
+	
+	public boolean fornecedorHasRelationshipCompra(int idFornecedor) throws SQLException {
+
+		boolean retorno = false;
+		try (PreparedStatement stmt = connection.prepareStatement(
+				"select * from compra where id_fornecedor = (?)",
+				Statement.RETURN_GENERATED_KEYS)) {
+			stmt.setInt(1, idFornecedor);
+			stmt.execute();
+
+			ResultSet resultSet = stmt.getResultSet();
+
+			while (resultSet.next()) {
+				retorno = true;
+			}
+		}
+		return retorno;
 	}
 }

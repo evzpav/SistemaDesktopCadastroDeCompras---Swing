@@ -45,7 +45,7 @@ public class ProdutoDao implements DAO<Produto> {
 
 	}
 
-	public boolean hasRelationship(int idProduto) throws SQLException {
+	public boolean hasRelationshipFornecedor(int idProduto) throws SQLException {
 
 		boolean retorno = false;
 		try (PreparedStatement stmt = connection.prepareStatement(

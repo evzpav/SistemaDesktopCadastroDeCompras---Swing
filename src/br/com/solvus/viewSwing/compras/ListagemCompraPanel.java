@@ -3,6 +3,8 @@ package br.com.solvus.viewSwing.compras;
 import javax.swing.JPanel;
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -19,6 +21,7 @@ import br.com.solvus.controller.CompraController;
 import br.com.solvus.model.Compra;
 import br.com.solvus.model.Fornecedor;
 import br.com.solvus.model.Produto;
+import br.com.solvus.viewSwing.util.ValidationException;
 
 import java.awt.Font;
 
@@ -30,6 +33,8 @@ public class ListagemCompraPanel extends JPanel {
 	private CompraController compraController;
 	private List<Fornecedor> listaFornecedor;
 	private Fornecedor fornecedorSelecionado;
+	private RegistroCompraPanel registroCompraPanel;
+	
 	
 	/**
 	 * Create the panel.
@@ -40,6 +45,7 @@ public class ListagemCompraPanel extends JPanel {
 		tableListagemCompraPanel = new TabelaListagemCompraPanel(conteudoCompraPanel);
 		compraController = new CompraController();
 		listaFornecedor = compraController.listFornecedor();
+		registroCompraPanel = new RegistroCompraPanel(conteudoCompraPanel);
 		
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 191, 0, 0, 0, 0};
@@ -146,7 +152,14 @@ public class ListagemCompraPanel extends JPanel {
 				String dataInicialString = fieldDataInicial.getText();
 				String dataFinalString = fieldDataFinal.getText();
 				List<Compra> listaFiltrada = new ArrayList<Compra>();
-				listaFiltrada = compraController.filtrarListaDeCompra(fornecedorSelecionadoNoCombo, dataInicialString, dataFinalString);
+				try {
+					listaFiltrada = compraController.filtrarListaDeCompra(fornecedorSelecionadoNoCombo, dataInicialString, dataFinalString);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ValidationException e2) {
+				showErrorMessage(e2);
+				}
 				tableListagemCompraPanel.atualizarPosFiltro(listaFiltrada);
 			}
 		});
@@ -161,8 +174,17 @@ public class ListagemCompraPanel extends JPanel {
 		
 		buttonAdicionarCompra.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				conteudoCompraPanel.showRegistroComprasPanel();
+				try {
+					conteudoCompraPanel.showRegistroComprasPanel();
+				
+					
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
+			
+			
 
 		});
 	}
@@ -170,5 +192,9 @@ public class ListagemCompraPanel extends JPanel {
 	protected void getFornecedorSelecionado(Fornecedor fornecedorSelecionado) {
 		this.fornecedorSelecionado = fornecedorSelecionado;
 				
+	}
+	protected void showErrorMessage(ValidationException e2) {
+		JOptionPane.showMessageDialog(this, e2.getError().getMsg());
+		
 	}
 }

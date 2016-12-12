@@ -90,8 +90,8 @@ public class FornecedorDao implements DAO<Fornecedor> {
 					produto = new Produto(nomeProduto);
 					produto.setId(produtoId);
 					listagemProdutos.add(produto);
-
 				}
+				
 				fornecedor.setListagemProdutos(listagemProdutos);
 				return fornecedor;
 			}
@@ -119,7 +119,7 @@ public class FornecedorDao implements DAO<Fornecedor> {
 	}
 
 	public List<Fornecedor> listWithRelationship() throws SQLException {
-		String sql = "select fornecedor.id_fornecedor,nome_fornecedor, nome_produto, data_contrato "
+		String sql = "select fornecedor.id_fornecedor,nome_fornecedor, nome_produto, data_contrato, produto.id_produto "
 				+ "from fornecedor "
 				+ "join fornecedor_produto as fornprod on fornecedor.id_fornecedor = fornprod.id_fornecedor "
 				+ "join produto on produto.id_produto = fornprod.id_produto " + "order by id_fornecedor";
@@ -138,8 +138,10 @@ public class FornecedorDao implements DAO<Fornecedor> {
 
 				String nomeFornecedor = resultSet.getString("nome_fornecedor");
 				String nomeProduto = resultSet.getString("nome_produto");
+				Integer idProduto = resultSet.getInt("id_produto");
 				Date dataContrato = resultSet.getDate("data_contrato");
 				Produto produto = new Produto(nomeProduto);
+				produto.setId(idProduto);
 
 				// existe um novo fornecedor na linha do banco
 				if (idFornecedorAtual != id) {
@@ -151,6 +153,7 @@ public class FornecedorDao implements DAO<Fornecedor> {
 					Fornecedor f = new Fornecedor(nomeFornecedor, dataContrato);
 					listaDeProdutos = new ArrayList<Produto>();
 					f.setId(id);
+					
 					listaDeProdutos.add(produto);
 					fornecedor = f;
 					idFornecedorAtual = id;

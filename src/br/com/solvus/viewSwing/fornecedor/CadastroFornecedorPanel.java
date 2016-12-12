@@ -282,7 +282,6 @@ public class CadastroFornecedorPanel extends JPanel {
 					if (produto1.getNome().equals(produtoCheckbox.getText())) {
 						produtosSelecionadosLista.add(produto1);
 					}
-
 				}
 			}
 		}
@@ -294,9 +293,8 @@ public class CadastroFornecedorPanel extends JPanel {
 		fornecedorAEditar = fornecedor;
 		nameField.setText(fornecedor.getNome());
 		dataContrato = controller.convertDateToString(fornecedor.getDataContrato());
-		System.out.println(dataContrato);
 		dateField.setText(dataContrato);
-
+		
 		idFornecedorAEditar = fornecedor.getId();
 	}
 

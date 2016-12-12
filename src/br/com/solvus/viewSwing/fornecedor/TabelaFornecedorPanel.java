@@ -11,11 +11,13 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+import br.com.solvus.controller.CompraController;
 import br.com.solvus.controller.FornecedorController;
 import br.com.solvus.model.Fornecedor;
 import br.com.solvus.viewSwing.util.ButtonEditor;
@@ -29,6 +31,7 @@ public class TabelaFornecedorPanel extends JPanel {
 	private ConteudoFornecedorPanel conteudoFornecedorPanel;
 	private DefaultTableModel dm;
 	private FornecedorController controller;
+	private CompraController compraController;
 
 	public TabelaFornecedorPanel(final ConteudoFornecedorPanel conteudoFornecedorPanel) {
 
@@ -39,6 +42,7 @@ public class TabelaFornecedorPanel extends JPanel {
 		controller = new FornecedorController();
 		botaoCadastroFornecedor = new JButton("Adicionar Fornecedor");
 		cadastroFornecedorPanel = new CadastroFornecedorPanel(conteudoFornecedorPanel);
+		compraController = new CompraController();
 
 		dm = new DefaultTableModel();
 
@@ -108,9 +112,7 @@ public class TabelaFornecedorPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
 				editar(conteudoFornecedorPanel, table);
-
 			}
 		}));
 		table.getColumn("Excluir").setCellRenderer(new ButtonRenderer());
@@ -118,22 +120,22 @@ public class TabelaFornecedorPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				excluir(table);
+				try {
+					excluir(table);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		}));
 	}
 
-
-
-	
 	private void editar(final ConteudoFornecedorPanel conteudoFornecedorPanel, final JTable table) {
 		int idFornecedorAEditar = (int) table.getValueAt(table.getSelectedRow(), 0);
 		Fornecedor fornecedor;
 		try {
 			fornecedor = controller.findById(idFornecedorAEditar);
-
 			conteudoFornecedorPanel.fornecedorAEditar(fornecedor);
-
 			conteudoFornecedorPanel.setEditingForn();
 
 			atualizar();
@@ -143,17 +145,26 @@ public class TabelaFornecedorPanel extends JPanel {
 		}
 	}
 
-	private void excluir(final JTable table) {	
+	private void excluir(final JTable table) throws SQLException {
 		int idFornecedorAExcluir = (int) table.getValueAt(table.getSelectedRow(), 0);
-		try {
-			controller.deleteById(idFornecedorAExcluir);
-			atualizar();
 
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		if (!compraController.fornecedorHasRelationshipCompra(idFornecedorAExcluir)) {
+			try {
+				controller.deleteById(idFornecedorAExcluir);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			atualizar();
+		} else {
+			mostrarMensagemNaoPodeExcluirFornecedor();
 		}
+
 	}
 
+	private void mostrarMensagemNaoPodeExcluirFornecedor() {
+		JOptionPane.showMessageDialog(this,
+				"O fornecedor não pode ser excluido porque já está relacionado à uma compra");
+	}
 
 }

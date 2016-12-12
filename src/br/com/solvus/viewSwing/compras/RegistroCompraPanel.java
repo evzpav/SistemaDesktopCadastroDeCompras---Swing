@@ -11,13 +11,18 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.awt.Font;
 import javax.swing.JTextField;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import br.com.solvus.controller.CompraController;
 import br.com.solvus.controller.ItemDeCompraController;
+import br.com.solvus.model.Compra;
 import br.com.solvus.model.Fornecedor;
 import br.com.solvus.model.ItemDeCompra;
 import br.com.solvus.model.Produto;
@@ -38,6 +43,10 @@ public class RegistroCompraPanel extends JPanel {
 	private JTextField textFieldValorTotal;
 	private List<ItemDeCompra> novaListaItemDeCompraASerPreenchida;
 	private List<ItemDeCompra> listaItemDeCompraProntaParaSalvar;
+	public boolean isEditing;
+	private Compra compraAEditar;
+	private int idCompraAEditar;
+	private Fornecedor fornecedorCompraAEditar;
 
 	/**
 	 * Create the panel.
@@ -48,11 +57,11 @@ public class RegistroCompraPanel extends JPanel {
 
 		tableRegistroCompraPanel = new TabelaRegistroCompraPanel(this);
 		compraController = new CompraController();
-		listaFornecedor = compraController.listFornecedor();
+
 		itemDeCompraController = new ItemDeCompraController();
 		valorTotal = null;
-
-
+	
+		
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 141, 184, 171, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 20, 0, 0, 0, 0, 0, 0, 222, -17, 0, 0 };
@@ -69,6 +78,7 @@ public class RegistroCompraPanel extends JPanel {
 		gbc_lblRegistroDeCompras.gridy = 0;
 		add(lblRegistroDeCompras, gbc_lblRegistroDeCompras);
 
+		
 		JLabel lblFornecedor = new JLabel("Fornecedor");
 		GridBagConstraints gbc_lblFornecedor = new GridBagConstraints();
 		gbc_lblFornecedor.anchor = GridBagConstraints.WEST;
@@ -77,6 +87,7 @@ public class RegistroCompraPanel extends JPanel {
 		gbc_lblFornecedor.gridy = 1;
 		add(lblFornecedor, gbc_lblFornecedor);
 
+	
 		comboFornecedor = new JComboBox();
 		GridBagConstraints gbc_comboFornecedor = new GridBagConstraints();
 		gbc_comboFornecedor.insets = new Insets(0, 0, 5, 5);
@@ -84,11 +95,12 @@ public class RegistroCompraPanel extends JPanel {
 		gbc_comboFornecedor.gridx = 1;
 		gbc_comboFornecedor.gridy = 2;
 		add(comboFornecedor, gbc_comboFornecedor);
+	
+		DefaultComboBoxModel<Fornecedor> model = new DefaultComboBoxModel<>();
+		comboFornecedor.setModel(model);
+		
+		fillComboFornecedor();
 
-		for (int i = 0; i < listaFornecedor.size(); i++) {
-			Fornecedor fornecedor = listaFornecedor.get(i);
-			comboFornecedor.addItem(fornecedor);
-		}
 		comboFornecedor.addActionListener(new ActionListener() {
 
 			@Override
@@ -99,10 +111,11 @@ public class RegistroCompraPanel extends JPanel {
 				listaProdutoFornecedorSelecionado = fornecedorSelecionado.getListagemProdutos();
 				fillComboProduto(comboProduto, listaProdutoFornecedorSelecionado);
 				generateNovaListaDeItemASerPreenchida();
-			
+
 			}
 		});
 
+	
 		JLabel lblDataDaCompra = new JLabel("Data da Compra");
 		GridBagConstraints gbc_lblDataDaCompra = new GridBagConstraints();
 		gbc_lblDataDaCompra.anchor = GridBagConstraints.WEST;
@@ -170,7 +183,7 @@ public class RegistroCompraPanel extends JPanel {
 		add(inputValor, gbc_inputValor);
 		inputValor.setColumns(10);
 
-		JButton buttonAdicionar = new JButton("Adicionar");
+		final JButton buttonAdicionar = new JButton("Adicionar");
 		GridBagConstraints gbc_buttonAdicionar = new GridBagConstraints();
 		gbc_buttonAdicionar.insets = new Insets(0, 0, 5, 0);
 		gbc_buttonAdicionar.gridx = 4;
@@ -184,23 +197,19 @@ public class RegistroCompraPanel extends JPanel {
 				Produto produto = (Produto) comboProduto.getSelectedItem();
 				String quantidadeString = inputQuantidade.getText();
 				String valorUnitarioString = inputValor.getText();
-			
+
 				try {
-					ItemDeCompra itemDeCompra = itemDeCompraController.adicionarItemDeCompra(produto, quantidadeString, valorUnitarioString);
+					ItemDeCompra itemDeCompra = itemDeCompraController.adicionarItemDeCompra(produto, quantidadeString,
+							valorUnitarioString);
 					List<ItemDeCompra> listaPreenchida = fillListaItemDeCompra(itemDeCompra);
-					tableRegistroCompraPanel.getListaPreenchida(listaPreenchida);
+					tableRegistroCompraPanel.setListaPreenchida(listaPreenchida);
 					tableRegistroCompraPanel.atualizar();
-					
-			
-					
-				} catch (ValidationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					
-					JOptionPane.showMessageDialog(null, e1.getError().getMsg());
+
+				} catch (ValidationException e2) {
+					System.out.println((e2).getError().getMsg());
+					showErrorMessage(e2);
 				}
 
-				
 				mostrarValorTotal();
 				clearFields();
 
@@ -247,16 +256,27 @@ public class RegistroCompraPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				Fornecedor fornecedor = (Fornecedor) comboFornecedor.getSelectedItem();
 				String dataCompra = inputDate.getText();
-				String valorTotalString = tableRegistroCompraPanel.somaValorTotal();
-			
-				List<ItemDeCompra> listaDeItemDeCompraParaSalvar = tableRegistroCompraPanel.listaPreenchida;
+				Double valorTotalDouble = tableRegistroCompraPanel.getValorTotalDouble();
+				List<ItemDeCompra> listaDeItemDeCompraParaSalvar = tableRegistroCompraPanel.getListaPreenchida();
+
 				try {
-					compraController.saveCompra(fornecedor, dataCompra, listaDeItemDeCompraParaSalvar, valorTotalString);
+					if (isEditing) {
+						
+						compraController.updateCompra(fornecedor, dataCompra, compraAEditar, listaDeItemDeCompraParaSalvar);
+					
+						
+					} else {
+						compraController.saveCompra(fornecedor, dataCompra, listaDeItemDeCompraParaSalvar,
+								valorTotalDouble);
+					}
+
+				} catch (ValidationException e2) {
+					showErrorMessage(e2);
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-
+				mostrarMsgSalvoComSucesso();
 			}
 		});
 
@@ -266,57 +286,91 @@ public class RegistroCompraPanel extends JPanel {
 		gbc_buttonCancelar.gridx = 2;
 		gbc_buttonCancelar.gridy = 9;
 		add(buttonCancelar, gbc_buttonCancelar);
-		
+
 		buttonCancelar.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				clearFields();
 				conteudoCompraPanel.showListagemComprasPanel();
-				tableRegistroCompraPanel.limparTabelaItemDeCompra();
+				// tableRegistroCompraPanel.limparTabelaItemDeCompra();
 				textFieldValorTotal.setText("");
 				clearComboFornecedor();
-				
-				
+
 			}
 		});
 
 	}
 
-	// protected void salvaNaListaDeItemDeCompraAdicionado(ItemDeCompra
-	// itemdecompra) {
-	// listaItemDeCompraAdicionado.add(itemdecompra);
-	//
-	// }
+	protected void mostrarMsgSalvoComSucesso() {
+		if(compraController.getSalvoComSucesso()){
+		JOptionPane.showMessageDialog(this, "Salvo com sucesso");
+		}
+	}
 
-	// protected void somaValorTotal(String valorUnitarioString) {
-	//
-	// Double valorUnitario = Double.parseDouble(valorUnitarioString);
-	// valorTotal = valorTotal + valorUnitario;
-	//
-	// valorTotalString = String.valueOf(valorTotal);
-	// }
+	public void fillComboFornecedor() throws SQLException {
+		getListaFornecedor();
+		for (int i = 0; i < listaFornecedor.size(); i++) {
+			Fornecedor fornecedor = listaFornecedor.get(i);
+			comboFornecedor.addItem(fornecedor);
+		}
+		
+		if (isEditing) {
+			comboFornecedor.setSelectedItem(fornecedorCompraAEditar);
+		}
+		
+	}
 
+	public void getListaFornecedor() throws SQLException {
+		listaFornecedor = compraController.listFornecedor();
+	}
+
+	protected void showErrorMessage(ValidationException e2) {
+		JOptionPane.showMessageDialog(this, e2.getError().getMsg());
+
+	}
 
 	private void generateNovaListaDeItemASerPreenchida() {
 		novaListaItemDeCompraASerPreenchida = new ArrayList<ItemDeCompra>();
-				
+
 	}
 
-
-	public List <ItemDeCompra> fillListaItemDeCompra(ItemDeCompra itemDeCompra) {
-		List <ItemDeCompra> listaItemDeCompraPreenchida = novaListaItemDeCompraASerPreenchida;
-		listaItemDeCompraPreenchida.add(itemDeCompra);
-		return listaItemDeCompraPreenchida;
+	public List<ItemDeCompra> fillListaItemDeCompra(ItemDeCompra itemDeCompra) {
+		List<ItemDeCompra> listaItemDeCompraPreenchida;
 		
-	}
+		if(isEditing){
+			listaItemDeCompraPreenchida = tableRegistroCompraPanel.getListaPreenchida();
+		}else{
+			listaItemDeCompraPreenchida = novaListaItemDeCompraASerPreenchida;
+		}
 	
+		boolean duplicado = false;
+		if (listaItemDeCompraPreenchida.isEmpty()) {
+			listaItemDeCompraPreenchida.add(itemDeCompra);
+		} else {
 
-		
+			for (ItemDeCompra itemDeCompraAntigo : listaItemDeCompraPreenchida) {
+				int id1 = itemDeCompraAntigo.getProduto().getId();
+				int id2 = itemDeCompra.getProduto().getId();
+				if (id1 == id2) {
+					duplicado = true;
+
+				}
+
+			}
+			if (!duplicado) {
+				listaItemDeCompraPreenchida.add(itemDeCompra);
+			} else {
+				// error Message
+			}
+		}
+		return listaItemDeCompraPreenchida;
+	}
+
 	protected void clearFields() {
 		inputQuantidade.setText("");
 		inputValor.setText("");
-		
+
 	}
 
 	private void fillComboProduto(JComboBox comboProduto, List<Produto> listaProdutoFornecedorSelecionado) {
@@ -327,23 +381,49 @@ public class RegistroCompraPanel extends JPanel {
 		}
 	}
 
-
 	private void clearComboProduto() {
 		comboProduto.removeAllItems();
 	}
 
-	private void clearComboFornecedor() {
+	public void clearComboFornecedor() {
 		clearComboProduto();
 		List<Produto> listaProdutoFornecedorSelecionado = new ArrayList<Produto>();
 		Fornecedor fornecedorSelecionado = (Fornecedor) comboFornecedor.getSelectedItem();
 		listaProdutoFornecedorSelecionado = fornecedorSelecionado.getListagemProdutos();
 		fillComboProduto(comboProduto, listaProdutoFornecedorSelecionado);
 	}
-	
+
 	public void mostrarValorTotal() {
 
 		valorTotalString = tableRegistroCompraPanel.somaValorTotal();
+		
 		textFieldValorTotal.setText(valorTotalString);
+		
+		
+	}
+
+	public void setEditingCompra(Compra compra) throws SQLException {
+		compraAEditar = compra;
+		String dataCompra = compraController.convertDateToString(compra.getDataCompra());
+		idCompraAEditar = compra.getId();
+		List<ItemDeCompra> listaItemDeCompraParaEditar = itemDeCompraController.list(idCompraAEditar);
+		inputDate.setText(dataCompra);
+		fornecedorCompraAEditar = compra.getFornecedor();
+
+		comboFornecedor.setSelectedItem(fornecedorCompraAEditar);
+		
+		tableRegistroCompraPanel.setListaPreenchida(listaItemDeCompraParaEditar);
+		tableRegistroCompraPanel.atualizar();
+	
+	}
+
+	public void isNew() {
+		isEditing = false;
+	}
+
+	public void isEditing() {
+		isEditing = true;
+
 	}
 
 }

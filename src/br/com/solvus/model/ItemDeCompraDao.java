@@ -1,15 +1,12 @@
 package br.com.solvus.model;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
-import br.com.solvus.controller.ItemDeCompraController;
 
 public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 
@@ -54,8 +51,7 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 				stmt.setInt(2, itemDeCompra.getIdItemDeCompra());
 				stmt.execute();
 			}
-			System.out.println("saveRelationship acionado");
-			
+
 		}
 	}
 
@@ -78,31 +74,6 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 				itemdecompra.setIdItemDeCompra(idItemDeCompra);
 			}
 
-			// String sql1 = "select * from fornecedor_produto"
-			// + " join produto on produto.id_produto =
-			// fornecedor_produto.id_produto "
-			// + "where id_fornecedor = (?)";
-			// try (PreparedStatement pstmt = connection.prepareStatement(sql1))
-			// {
-			// pstmt.setInt(1, idFornecedor);
-			// pstmt.execute();
-			//
-			// ResultSet resultSet1 = pstmt.getResultSet();
-			// Produto produto = null;
-			// List<Produto> listagemProdutos = new ArrayList<Produto>();
-			//
-			// while (resultSet1.next()) {
-			// int produtoId = resultSet1.getInt("id_produto");
-			// String nomeProduto = resultSet1.getString("nome_produto");
-			// produto = new Produto(nomeProduto);
-			// produto.setId(produtoId);
-			// listagemProdutos.add(produto);
-			//
-			// }
-			// fornecedor.setListagemProdutos(listagemProdutos);
-			// return fornecedor;
-			// }
-			// }
 			return itemdecompra;
 		}
 	}
@@ -117,12 +88,10 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 
 	}
 
-
-	@Override
-	public List<ItemDeCompra> list() throws SQLException {
-		System.out.println("conectou com o dao");
-		String sql = "select * from itemdecompra";
+	public List<ItemDeCompra> list(int idCompra) throws SQLException {
+		String sql = "select distinct * from itemdecompra where id_compra = (?)";
 		try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+			stmt.setInt(1, idCompra);
 			stmt.execute();
 
 			List<ItemDeCompra> listaItemDeCompra = new ArrayList<ItemDeCompra>();
@@ -133,9 +102,9 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 				ItemDeCompra itemdecompra = null;
 				int idProduto = resultSet.getInt("id_produto");
 				int idItemDeCompra = resultSet.getInt("id_itemdecompra");
-				produto = produtoDao.findById(idProduto);
 				Integer quantidade = resultSet.getInt("quantidade");
 				Double valorUnitario = resultSet.getDouble("valor_unitario");
+				produto = produtoDao.findById(idProduto);
 				itemdecompra = new ItemDeCompra(produto, quantidade, valorUnitario);
 				itemdecompra.setIdItemDeCompra(idItemDeCompra);
 				listaItemDeCompra.add(itemdecompra);
@@ -181,4 +150,29 @@ public class ItemDeCompraDao implements DAO<ItemDeCompra> {
 		}
 
 	}
+
+	@Override
+	public List<ItemDeCompra> list() throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean produtoHasRelationshipCompra(int idProduto) throws SQLException {
+
+		boolean retorno = false;
+		try (PreparedStatement stmt = connection.prepareStatement(
+				"select * from itemdecompra where id_produto = (?)",
+				Statement.RETURN_GENERATED_KEYS)) {
+			stmt.setInt(1, idProduto);
+			stmt.execute();
+
+			ResultSet resultSet = stmt.getResultSet();
+
+			while (resultSet.next()) {
+				retorno = true;
+			}
+		}
+		return retorno;
+	}
+	
 }
