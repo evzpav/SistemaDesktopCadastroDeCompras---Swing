@@ -11,16 +11,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
 import br.com.solvus.controller.CompraController;
 import br.com.solvus.model.Compra;
 import br.com.solvus.model.Fornecedor;
 import br.com.solvus.model.Produto;
+import br.com.solvus.viewSwing.util.DateLabelFormatter;
 import br.com.solvus.viewSwing.util.ValidationException;
 
 import java.awt.Font;
@@ -46,6 +53,25 @@ public class ListagemCompraPanel extends JPanel {
 		compraController = new CompraController();
 		listaFornecedor = compraController.listFornecedor();
 		registroCompraPanel = new RegistroCompraPanel(conteudoCompraPanel);
+		
+		//JDatePicker
+				UtilDateModel dateModel1 = new UtilDateModel();
+				Properties p1 = new Properties();
+				p1.put("text.today", "Today");
+				p1.put("text.month", "Month");
+				p1.put("text.year", "Year");
+				
+				UtilDateModel dateModel2 = new UtilDateModel();
+				Properties p2 = new Properties();
+				p2.put("text.today", "Today");
+				p2.put("text.month", "Month");
+				p2.put("text.year", "Year");
+				
+				JDatePanelImpl datePanelInicial = new JDatePanelImpl(dateModel1, p1);
+				JDatePanelImpl datePanelFinal = new JDatePanelImpl(dateModel2, p2);
+						
+				final JDatePickerImpl datePickerInicial = new JDatePickerImpl(datePanelInicial, new DateLabelFormatter());
+				final JDatePickerImpl datePickerFinal = new JDatePickerImpl(datePanelFinal, new DateLabelFormatter());
 		
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 191, 0, 0, 0, 0};
@@ -123,8 +149,9 @@ public class ListagemCompraPanel extends JPanel {
 		gbc_fieldDataInicial.fill = GridBagConstraints.HORIZONTAL;
 		gbc_fieldDataInicial.gridx = 2;
 		gbc_fieldDataInicial.gridy = 3;
-		add(fieldDataInicial, gbc_fieldDataInicial);
-		fieldDataInicial.setColumns(10);
+		//add(fieldDataInicial, gbc_fieldDataInicial);
+		add(datePickerInicial,gbc_fieldDataInicial);
+		//fieldDataInicial.setColumns(10);
 		
 		fieldDataFinal = new JTextField();
 		GridBagConstraints gbc_fieldDataFinal = new GridBagConstraints();
@@ -132,8 +159,9 @@ public class ListagemCompraPanel extends JPanel {
 		gbc_fieldDataFinal.fill = GridBagConstraints.HORIZONTAL;
 		gbc_fieldDataFinal.gridx = 3;
 		gbc_fieldDataFinal.gridy = 3;
-		add(fieldDataFinal, gbc_fieldDataFinal);
-		fieldDataFinal.setColumns(10);
+		//add(fieldDataFinal, gbc_fieldDataFinal);
+		add(datePickerFinal,gbc_fieldDataFinal);
+		//fieldDataFinal.setColumns(10);
 		
 		JButton buttonFiltrar = new JButton("Filtrar");
 		GridBagConstraints gbc_buttonFiltrar = new GridBagConstraints();
@@ -149,11 +177,14 @@ public class ListagemCompraPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				
 				Fornecedor fornecedorSelecionadoNoCombo = fornecedorSelecionado;
-				String dataInicialString = fieldDataInicial.getText();
-				String dataFinalString = fieldDataFinal.getText();
+			//	String dataInicialString = fieldDataInicial.getText();
+			//	String dataFinalString = fieldDataFinal.getText();
+				Date dataInicial = (Date) datePickerInicial.getModel().getValue();
+				Date dataFinal = (Date) datePickerFinal.getModel().getValue();
+				
 				List<Compra> listaFiltrada = new ArrayList<Compra>();
 				try {
-					listaFiltrada = compraController.filtrarListaDeCompra(fornecedorSelecionadoNoCombo, dataInicialString, dataFinalString);
+					listaFiltrada = compraController.filtrarListaDeCompra(fornecedorSelecionadoNoCombo, dataInicial, dataFinal);
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

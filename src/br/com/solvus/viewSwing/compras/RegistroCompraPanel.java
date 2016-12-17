@@ -13,10 +13,17 @@ import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.awt.Font;
 import javax.swing.JTextField;
+
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -26,6 +33,7 @@ import br.com.solvus.model.Compra;
 import br.com.solvus.model.Fornecedor;
 import br.com.solvus.model.ItemDeCompra;
 import br.com.solvus.model.Produto;
+import br.com.solvus.viewSwing.util.DateLabelFormatter;
 import br.com.solvus.viewSwing.util.ValidationException;
 
 public class RegistroCompraPanel extends JPanel {
@@ -61,6 +69,16 @@ public class RegistroCompraPanel extends JPanel {
 		itemDeCompraController = new ItemDeCompraController();
 		valorTotal = null;
 	
+		
+		//JDatePicker
+			UtilDateModel dateModel = new UtilDateModel();
+			Properties p = new Properties();
+			p.put("text.today", "Today");
+			p.put("text.month", "Month");
+			p.put("text.year", "Year");
+			JDatePanelImpl datePanel = new JDatePanelImpl(dateModel, p);
+			final JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+		
 		
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 141, 184, 171, 0, 0 };
@@ -130,8 +148,9 @@ public class RegistroCompraPanel extends JPanel {
 		gbc_inputDate.fill = GridBagConstraints.HORIZONTAL;
 		gbc_inputDate.gridx = 1;
 		gbc_inputDate.gridy = 4;
-		add(inputDate, gbc_inputDate);
-		inputDate.setColumns(10);
+		//add(inputDate, gbc_inputDate);
+		add(datePicker, gbc_inputDate);
+		inputDate.setColumns(10);	
 
 		JLabel lblProduto = new JLabel("Produto");
 		GridBagConstraints gbc_lblProduto = new GridBagConstraints();
@@ -255,7 +274,8 @@ public class RegistroCompraPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Fornecedor fornecedor = (Fornecedor) comboFornecedor.getSelectedItem();
-				String dataCompra = inputDate.getText();
+				//String dataCompra = inputDate.getText();
+				Date dataCompra = (Date) datePicker.getModel().getValue();
 				Double valorTotalDouble = tableRegistroCompraPanel.getValorTotalDouble();
 				List<ItemDeCompra> listaDeItemDeCompraParaSalvar = tableRegistroCompraPanel.getListaPreenchida();
 

@@ -108,7 +108,7 @@ public class TabelaRegistroCompraPanel extends JPanel {
 	}
 
 	public String somaValorTotal() {
-		Double valorTotal = 0.00d;
+		Double valorTotal = 0.00;
 		String valorTotalString = "00,00";
 		if (listaPreenchida.size() > 0) {
 			for (ItemDeCompra itemDeCompra : listaPreenchida) {
@@ -120,13 +120,19 @@ public class TabelaRegistroCompraPanel extends JPanel {
 			setValorTotalDouble(valorTotal);
 			valorTotalString = converteDoubleToMoney(valorTotal);
 		}
+	
 		return valorTotalString;
 	}
 
 	public String converteDoubleToMoney(Double valorTotal) {
 		Locale ptBr = new Locale("pt", "BR");
+		
 		String valorTotalString = NumberFormat.getCurrencyInstance(ptBr).format(valorTotal);
+	
+	
+		
 		return valorTotalString;
+		
 	}
 
 	public void setValorTotalDouble(Double valorTotal) {

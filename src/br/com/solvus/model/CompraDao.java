@@ -121,13 +121,13 @@ public class CompraDao implements DAO<Compra> {
 		}
 	}
 
-	public List<Compra> filtrarListaCompra(Fornecedor fornecedorSelecionadoNoCombo, java.sql.Date dataInicialConvertida,
-			java.sql.Date dataFinalConvertida) throws SQLException {
+	public List<Compra> filtrarListaCompra(Fornecedor fornecedorSelecionadoNoCombo, java.sql.Date dataInicial,
+			java.sql.Date dataFinal) throws SQLException {
 		String sql = "select * from compra where id_fornecedor = (?) and data_compra between (?) and (?)";
 		try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 			stmt.setInt(1, fornecedorSelecionadoNoCombo.getId());
-			stmt.setDate(2, dataInicialConvertida);
-			stmt.setDate(3, dataFinalConvertida);
+			stmt.setDate(2, dataInicial);
+			stmt.setDate(3, dataFinal);
 			stmt.execute();
 
 			ResultSet resultSet = stmt.getResultSet();
@@ -138,8 +138,10 @@ public class CompraDao implements DAO<Compra> {
 				int idCompra = resultSet.getInt("id_compra");
 				int idFornecedor = resultSet.getInt("id_fornecedor");
 				Date dataCompra = resultSet.getDate("data_compra");
+				Double valorTotal = resultSet.getDouble("valor_total");
 				fornecedor = fornecedorDao.findById(idFornecedor);
 				compra = new Compra(fornecedor, dataCompra);
+				compra.setValorTotal(valorTotal);
 				listaCompra.add(compra);
 				compra.setId(idCompra);
 			}

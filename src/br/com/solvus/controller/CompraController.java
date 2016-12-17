@@ -35,15 +35,15 @@ public class CompraController {
 		salvoComSucesso = false;
 	}
 
-	public void saveCompra(Fornecedor fornecedor, String dataCompra,
+	public void saveCompra(Fornecedor fornecedor, Date dataCompra,
 			List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela, Double valorTotalDouble)
 			throws ValidationException, SQLException {
 		ValidationError validation = null;
 		validation = validateInputEntry(fornecedor, dataCompra, listaDeItemDeCompraAdicionadosNaTabela);
 
 		if (validation.isValid()) {
-			Date convertedDate = convertStringToDate(dataCompra);
-			Compra compra = new Compra(fornecedor, convertedDate);
+		//	Date convertedDate = convertStringToDate(dataCompra);
+			Compra compra = new Compra(fornecedor, dataCompra);
 			compra.setValorTotal(valorTotalDouble);
 			compra.setListaDeItemDeCompra(listaDeItemDeCompraAdicionadosNaTabela);
 			save(compra);
@@ -59,15 +59,15 @@ public class CompraController {
 		dao.save(compra);
 	}
 
-	public void updateCompra(Fornecedor fornecedor, String dataCompra, Compra compraAEditar,
+	public void updateCompra(Fornecedor fornecedor, Date dataCompra, Compra compraAEditar,
 			List<ItemDeCompra> listaDeItemDeCompraEditada) throws ValidationException, SQLException {
 		ValidationError validation = null;
 		validation = validateInputEntry(fornecedor, dataCompra, listaDeItemDeCompraEditada);
 
 		if (validation.isValid()) {
 			dao.deleteRelationship(compraAEditar.getId());
-			java.util.Date dataCompraConvertida = convertStringToDate(dataCompra);
-			compraAEditar.setDataCompra(dataCompraConvertida);
+//			java.util.Date dataCompraConvertida = convertStringToDate(dataCompra);
+			compraAEditar.setDataCompra(dataCompra);
 			compraAEditar.setListaDeItemDeCompra(listaDeItemDeCompraEditada);
 			compraAEditar.setFornecedor(fornecedor);
 			dao.update(compraAEditar);
@@ -98,7 +98,7 @@ public class CompraController {
 
 	}
 
-	public ValidationError validateInputEntry(Fornecedor fornecedor, String inputDate,
+	public ValidationError validateInputEntry(Fornecedor fornecedor, Date dataCompra,
 			List<ItemDeCompra> listaDeItemDeCompraAdicionadosNaTabela) throws SQLException {
 		ValidationError validation = new ValidationError();
 		validation.setValid(true);
@@ -108,8 +108,8 @@ public class CompraController {
 			validation.setMsg("Nenhum fornecedor selecionado.");
 		}
 
-		Date dataConvertida = convertStringToDate(inputDate);
-		if (dataConvertida == null) {
+	//	Date dataConvertida = convertStringToDate(inputDate);
+		if (dataCompra == null) {
 
 			validation.setValid(false);
 			validation.setMsg("Data invalida.");
@@ -169,16 +169,18 @@ public class CompraController {
 		return convertedDate;
 	}
 
-	public List<Compra> filtrarListaDeCompra(Fornecedor fornecedorSelecionadoNoCombo, String dataInicialString,
-			String dataFinalString) throws SQLException, ValidationException {
+	public List<Compra> filtrarListaDeCompra(Fornecedor fornecedorSelecionadoNoCombo, Date dataInicial,
+			Date dataFinal) throws SQLException, ValidationException {
 
 		List<Compra> listaFiltrada = new ArrayList<Compra>();
 
 		ValidationError validation = null;
 		validation = validateInputEntryFiltrar(fornecedorSelecionadoNoCombo);
+		
 		if (validation.isValid()) {
-
-			if (dataInicialString.isEmpty() && dataFinalString.isEmpty()) {
+			
+					
+			if (dataInicial == null || dataFinal == null) {
 				try {
 					listaFiltrada = dao.filtrarPorFornecedorApenas(fornecedorSelecionadoNoCombo);
 				} catch (SQLException e) {
@@ -188,13 +190,12 @@ public class CompraController {
 
 			} else {
 
-				Date dataInicialConvertida = convertStringToDate(dataInicialString);
-				Date dataFinalConvertida = convertStringToDate(dataFinalString);
-				java.sql.Date dataInicialSql = new java.sql.Date(dataInicialConvertida.getTime());
-				java.sql.Date DataFinalSql = new java.sql.Date(dataFinalConvertida.getTime());
-
+				//Date dataInicialConvertida = convertStringToDate(dataInicialString);
+				//Date dataFinalConvertida = convertStringToDate(dataFinalString);
+				java.sql.Date dataInicialSql = new java.sql.Date(dataInicial.getTime());
+				java.sql.Date dataFinalSql = new java.sql.Date(dataFinal.getTime());
 				try {
-					listaFiltrada = dao.filtrarListaCompra(fornecedorSelecionadoNoCombo, dataInicialSql, DataFinalSql);
+					listaFiltrada = dao.filtrarListaCompra(fornecedorSelecionadoNoCombo, dataInicialSql, dataFinalSql);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -22,10 +23,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
 import br.com.solvus.controller.FornecedorController;
 import br.com.solvus.controller.ProdutoController;
 import br.com.solvus.model.Fornecedor;
 import br.com.solvus.model.Produto;
+import br.com.solvus.viewSwing.util.DateLabelFormatter;
 import br.com.solvus.viewSwing.util.ValidationError;
 
 public class CadastroFornecedorPanel extends JPanel {
@@ -46,7 +52,8 @@ public class CadastroFornecedorPanel extends JPanel {
 	private GridBagConstraints gc;
 	private JPanel checkBoxPanel;
 	private FornecedorController controller;
-	ProdutoController produtoController;
+	private ProdutoController produtoController;
+
 
 	public CadastroFornecedorPanel(final ConteudoFornecedorPanel conteudoFornecedorPanel) {
 		Dimension dim = getPreferredSize();
@@ -62,6 +69,17 @@ public class CadastroFornecedorPanel extends JPanel {
 		checkBoxPanel = new JPanel();
 		controller = new FornecedorController();
 		produtoController = new ProdutoController();
+	
+		
+		//JDatePicker
+			UtilDateModel dateModel = new UtilDateModel();
+			Properties p = new Properties();
+			p.put("text.today", "Today");
+			p.put("text.month", "Month");
+			p.put("text.year", "Year");
+			JDatePanelImpl datePanel = new JDatePanelImpl(dateModel, p);
+			final JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+	
 
 		checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
 
@@ -136,6 +154,8 @@ public class CadastroFornecedorPanel extends JPanel {
 
 		// 1st row
 
+		
+				
 		gc.weightx = 1;
 		gc.weighty = 0.1;
 
@@ -145,6 +165,7 @@ public class CadastroFornecedorPanel extends JPanel {
 		gc.fill = GridBagConstraints.NONE;
 		gc.anchor = GridBagConstraints.LINE_END;
 		gc.insets = new Insets(0, 0, 0, 5);
+		
 		add(nameLabel, gc);
 
 		gc.gridx = 1;
@@ -152,7 +173,8 @@ public class CadastroFornecedorPanel extends JPanel {
 		gc.insets = new Insets(0, 0, 0, 0);
 		gc.anchor = GridBagConstraints.LINE_START;
 		add(nameField, gc);
-
+		
+		
 		// 2.1 row
 
 		gc.weightx = 1;
@@ -166,10 +188,28 @@ public class CadastroFornecedorPanel extends JPanel {
 
 		gc.gridx = 1;
 		gc.gridy = 1;
-		gc.insets = new Insets(0, 0, 0, 0);
+		gc.insets = new Insets( 0, 0, 0, 0);
 		gc.anchor = GridBagConstraints.LINE_START;
 		add(dateField, gc);
-
+		
+//		gc.gridx = 1;
+//		gc.gridy = 2;
+//		gc.insets = new Insets( 0, 0, 0, 0);
+//		gc.anchor = GridBagConstraints.LINE_START;
+//		add(datePicker);
+		
+		
+//
+//			GridBagConstraints gbcDate = new GridBagConstraints();
+//			gbcDate.insets = new Insets(0, 0, 5, 5);
+//			gbcDate.fill = GridBagConstraints.HORIZONTAL;
+//			gbcDate.gridx = 1;
+//			gbcDate.gridy = 1;
+//			//add(fieldDataFinal, gbc_fieldDataFinal);
+//			add(datePicker,gbcDate);
+//			//fieldDataFinal.setColumns(10);
+			
+		
 		// produtos checkbox
 
 		gc.weightx = 1;
@@ -192,8 +232,8 @@ public class CadastroFornecedorPanel extends JPanel {
 		gc.weightx = 1;
 		gc.weighty = 1;
 
-		gc.gridx = 0;
-		gc.gridy++;
+		gc.gridx = 1;
+		gc.gridy = 3;
 		gc.insets = new Insets(0, 0, 0, 0);
 		gc.anchor = GridBagConstraints.LINE_START;
 		add(botaoSalvar, gc);
@@ -202,8 +242,8 @@ public class CadastroFornecedorPanel extends JPanel {
 		gc.weightx = 1;
 		gc.weighty = 1;
 
-		gc.gridx = 1;
-		gc.gridy++;
+		gc.gridx = 2;
+		gc.gridy = 3;
 		gc.insets = new Insets(0, 0, 0, 0);
 		gc.anchor = GridBagConstraints.LINE_START;
 		add(botaoCancelar, gc);

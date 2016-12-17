@@ -15,6 +15,8 @@ import javax.swing.event.MenuListener;
 import br.com.solvus.viewSwing.compras.ConteudoCompraPanel;
 import br.com.solvus.viewSwing.fornecedor.CadastroFornecedorPanel;
 import br.com.solvus.viewSwing.fornecedor.ConteudoFornecedorPanel;
+import br.com.solvus.viewSwing.graficos.GraficoTeste;
+import br.com.solvus.viewSwing.graficos.Graficos;
 import br.com.solvus.viewSwing.produto.CadastroProdutoPanel;
 import br.com.solvus.viewSwing.produto.ConteudoProdutoPanel;
 
@@ -27,7 +29,9 @@ public class MainFrame extends JFrame {
 	public ConteudoFornecedorPanel conteudoFornecedorPanel;
 	public ConteudoProdutoPanel conteudoProdutoPanel;
 	private ConteudoCompraPanel conteudoCompraPanel;
-
+	private Graficos graficos;
+	private GraficoTeste graficoTeste;
+	
 	public MainFrame() throws SQLException {
 
 		super("Meu App");
@@ -39,7 +43,9 @@ public class MainFrame extends JFrame {
 		conteudoProdutoPanel = new ConteudoProdutoPanel();
 
 		conteudoCompraPanel = new ConteudoCompraPanel();
-
+		graficos = new Graficos();
+		graficoTeste = new GraficoTeste();
+		
 		panelCont.setLayout(meuCardlayout);
 
 		setJMenuBar(createMenuBar());
@@ -47,10 +53,12 @@ public class MainFrame extends JFrame {
 		panelCont.add(conteudoFornecedorPanel, "1");
 		panelCont.add(conteudoProdutoPanel, "2");
 		panelCont.add(conteudoCompraPanel, "3");
-
+	//	panelCont.add(grafico, "4");
+		panelCont.add(graficoTeste, "4");
+		
 		this.add(panelCont);
 
-		setSize(800, 700);
+		setSize(1000, 1000);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 
@@ -67,29 +75,22 @@ public class MainFrame extends JFrame {
 	private void mudaTituloCompras() {
 		this.setTitle("Cadastro de Compras");
 	}
+	private void mudaTituloGraficos() {
+		this.setTitle("Graficos");
+	}
+	
 
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		final JMenu fornecedoresMenu = new JMenu("Fornecedores");
 		final JMenu produtosMenu = new JMenu("Produtos");
 		final JMenu comprasMenu = new JMenu("Compras");
+		final JMenu graficosMenu = new JMenu("Graficos");
 		menuBar.add(fornecedoresMenu);
 		menuBar.add(produtosMenu);
 		menuBar.add(comprasMenu);
+		menuBar.add(graficosMenu);
 
-//		fornecedoresMenu.addMenuListener(new MenuListener() {
-//			public void menuSelected(MenuEvent ev) {
-//				meuCardlayout.show(panelCont, "1");
-//				conteudoFornecedorPanel.showTabelaFornPanel();
-//				mudaTituloFornecedor();
-//			}
-//
-//			public void menuDeselected(MenuEvent ev) {
-//			}
-//
-//			public void menuCanceled(MenuEvent ev) {
-//			}
-//		});
 
 		
 		fornecedoresMenu.addMouseListener(new MouseListener() {
@@ -255,6 +256,50 @@ public class MainFrame extends JFrame {
 				
 			}
 		});
+		
+		graficosMenu.addMouseListener(new MouseListener() {
+			public void menuSelected(MenuEvent evv) {
+		
+			}
+
+			public void menuDeselected(MenuEvent evv) {
+			}
+
+			public void menuCanceled(MenuEvent evv) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				meuCardlayout.show(panelCont, "4");
+				mudaTituloGraficos();
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
 		return menuBar;
 	}
 }
