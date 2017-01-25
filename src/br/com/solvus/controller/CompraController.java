@@ -42,7 +42,6 @@ public class CompraController {
 		validation = validateInputEntry(fornecedor, dataCompra, listaDeItemDeCompraAdicionadosNaTabela);
 
 		if (validation.isValid()) {
-		//	Date convertedDate = convertStringToDate(dataCompra);
 			Compra compra = new Compra(fornecedor, dataCompra);
 			compra.setValorTotal(valorTotalDouble);
 			compra.setListaDeItemDeCompra(listaDeItemDeCompraAdicionadosNaTabela);
@@ -66,7 +65,6 @@ public class CompraController {
 
 		if (validation.isValid()) {
 			dao.deleteRelationship(compraAEditar.getId());
-//			java.util.Date dataCompraConvertida = convertStringToDate(dataCompra);
 			compraAEditar.setDataCompra(dataCompra);
 			compraAEditar.setListaDeItemDeCompra(listaDeItemDeCompraEditada);
 			compraAEditar.setFornecedor(fornecedor);
@@ -108,7 +106,6 @@ public class CompraController {
 			validation.setMsg("Nenhum fornecedor selecionado.");
 		}
 
-	//	Date dataConvertida = convertStringToDate(inputDate);
 		if (dataCompra == null) {
 
 			validation.setValid(false);
@@ -184,20 +181,16 @@ public class CompraController {
 				try {
 					listaFiltrada = dao.filtrarPorFornecedorApenas(fornecedorSelecionadoNoCombo);
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
 			} else {
 
-				//Date dataInicialConvertida = convertStringToDate(dataInicialString);
-				//Date dataFinalConvertida = convertStringToDate(dataFinalString);
 				java.sql.Date dataInicialSql = new java.sql.Date(dataInicial.getTime());
 				java.sql.Date dataFinalSql = new java.sql.Date(dataFinal.getTime());
 				try {
 					listaFiltrada = dao.filtrarListaCompra(fornecedorSelecionadoNoCombo, dataInicialSql, dataFinalSql);
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
